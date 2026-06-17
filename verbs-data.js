@@ -1949,7 +1949,7 @@ const CONTEXT_EXERCISES = [
     explanation: "'Un día' (eines Tages) markiert ein einmaliges, abgeschlossenes Ereignis -> Indefinido."
   },
   {
-    sentence: "En ese momento, yo ___ enfermo y cansado.",
+    sentence: "En ese momento, yo ___ enfermo y cansado. (Zustandsbeschreibung)",
     verb: "estar",
     person: "yo",
     correctTense: "imperfecto",
@@ -2129,7 +2129,7 @@ const CONTEXT_EXERCISES = [
     explanation: "'Un día' (eines Tages) zeigt ein plötzliches Ereignis in der Vergangenheit -> Indefinido."
   },
   {
-    sentence: "Yo ___ a las diez ayer porque estaba muy cansado.",
+    sentence: "Yo ___ a las diez ayer porque estaba muy cansado. (einschlafen)",
     verb: "dormir",
     person: "yo",
     correctTense: "indefinido",

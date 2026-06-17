@@ -957,6 +957,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function showQuestion() {
     session.isAnswered = false;
     feedbackWidget.classList.add("hidden");
+    btnNextQuestion.classList.add("hidden");
     
     // Fortschritt & Score aktualisieren
     updateProgressUI();
@@ -1747,13 +1748,9 @@ document.addEventListener("DOMContentLoaded", () => {
       feedbackExplanationBox.classList.add("hidden");
     }
 
-    // Button-Wechsel
+    // Weiter-Button einblenden (sitzt jetzt über dem Feedback)
+    btnNextQuestion.classList.remove("hidden");
     btnNextQuestion.focus();
-
-    // Automatisch zum "Weiter"-Button scrollen, sobald die Tastatur weggerutscht ist
-    setTimeout(() => {
-      btnNextQuestion.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }, 150);
   }
 
   // Nächste Frage oder Ergebnis

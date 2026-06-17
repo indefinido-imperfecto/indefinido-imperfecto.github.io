@@ -263,6 +263,9 @@
             <!-- Inhalt wird dynamisch gerendert -->
           </div>
 
+          <!-- Der "Weiter"-Button steht nun über dem Feedback-Bereich und unter dem Auswahlfeld -->
+          <button id="btn-next-question" class="btn-primary hidden" style="width: 100%; margin-top: 16px; margin-bottom: 16px;">Weiter <i class="fa-solid fa-chevron-right"></i></button>
+
           <!-- Feedback Bereich (Richtig/Falsch) -->
           <div id="feedback-widget" class="feedback-widget hidden">
             <div class="feedback-status">
@@ -276,13 +279,12 @@
             </div>
             <!-- Erklärungs-Akkordeon für Kontext -->
             <div id="feedback-explanation-box" class="explanation-box hidden">
-              <h5>Didaktischer Hinweis:</h5>
+              <h5>Erklärung:</h5>
               <p id="feedback-explanation"></p>
               <div class="sentence-translation">
                 <i class="fa-solid fa-language"></i> <span id="feedback-translation"></span>
               </div>
             </div>
-            <button id="btn-next-question" class="btn-primary">Weiter <i class="fa-solid fa-chevron-right"></i></button>
           </div>
         </div>
 

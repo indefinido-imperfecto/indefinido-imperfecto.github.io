@@ -2725,142 +2725,149 @@ td .person-number-badge {
 }
 
 /* ==========================================================================
-   MOBILE RESPONSIVENESS OPTIMIZATIONS (max-width: 480px)
+   VOLLBILD-MODUS FÜR ÜBUNGEN (kein Scrollen auf Handy)
+   Wird aktiviert durch body.session-active (gesetzt per JS)
    ========================================================================== */
-@media (max-width: 480px) {
-  .app-container {
-    padding: 12px 10px;
+@media (max-width: 600px) {
+  /* Seite einfrieren – kein äußeres Scrollen mehr */
+  body.session-active {
+    overflow: hidden;
   }
-  .app-content {
-    padding: 16px 0;
+
+  /* Practice-Session nimmt den gesamten Bildschirm ein */
+  body.session-active #practice-session {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100dvh; /* dynamic viewport height – ignoriert Browser-UI */
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    padding: 14px 14px 10px 14px !important;
+    z-index: 200;
+    box-sizing: border-box;
+    gap: 0;
   }
-  .app-header {
-    margin-top: -12px;
-    margin-left: -10px;
-    margin-right: -10px;
-    padding-left: 10px;
-    padding-right: 10px;
-    gap: 12px;
-    padding-top: 12px;
-    padding-bottom: 12px;
+
+  /* Fortschrittsleiste oben – feste Höhe */
+  body.session-active .session-header {
+    flex-shrink: 0;
+    margin-bottom: 10px;
   }
-  .glass-card {
-    padding: 20px;
-    margin-bottom: 16px;
-    border-radius: var(--radius-md);
+
+  /* Fragen-Karte: wächst und füllt den Platz, scrollt intern falls nötig */
+  body.session-active #question-card {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0; /* wichtig für flex-Kinder */
+    -webkit-overflow-scrolling: touch;
   }
-  .glass-card h2 {
-    font-size: 1.45rem;
+
+  /* Weiter-Button – feste Höhe, immer sichtbar */
+  body.session-active #btn-next-question {
+    flex-shrink: 0;
+    width: 100%;
+    margin: 10px 0 6px 0 !important;
+    padding: 13px 20px;
+    font-size: 1rem;
   }
-  .subtitle {
-    font-size: 0.92rem;
-    margin-bottom: 20px;
-  }
-  .tab-btn {
-    padding: 8px 12px;
-    font-size: 0.85rem;
-    gap: 4px;
-  }
-  .logo h1 {
-    font-size: 1.5rem;
-  }
-  .logo-icon {
-    font-size: 1.7rem;
-  }
-  .prompt-box-element {
-    padding: 12px;
-  }
-  .prompt-grid-boxes {
-    gap: 12px;
-  }
-  .answer-input {
-    font-size: 1.1rem;
-    padding: 12px 14px;
-  }
-  .accent-btn {
-    width: 38px;
-    height: 38px;
-    font-size: 0.95rem;
-  }
-  .choice-btn {
-    padding: 12px 16px;
-    font-size: 0.9rem;
-  }
-  .signal-word-display {
-    font-size: 1.8rem;
-    padding: 16px;
-  }
-  .practice-settings-content {
-    padding: 16px 12px;
-  }
-  /* Übungsansicht-Kompaktheit für Mobilgeräte */
-  #practice-session {
-    padding: 12px 14px 14px 14px !important;
-  }
-  .session-header {
-    margin-bottom: 12px;
-  }
-  .tense-header-banner {
+
+  /* Feedback-Bereich – begrenzte Höhe, kompakt, scrollt intern */
+  body.session-active #feedback-widget {
+    flex-shrink: 0;
+    max-height: 34vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-top: 0 !important;
     padding: 10px 14px !important;
-    margin-bottom: 12px !important;
-    font-size: 0.85rem !important;
-  }
-  .prompt-grid-boxes {
-    grid-template-columns: 1fr 1fr !important;
-    margin-bottom: 12px !important;
     gap: 8px !important;
   }
-  .prompt-box-element {
+
+  body.session-active .feedback-status {
+    gap: 10px !important;
+  }
+
+  body.session-active .feedback-icon-container {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 0.85rem !important;
+  }
+
+  body.session-active .feedback-text h4 {
+    font-size: 1rem !important;
+    margin-bottom: 1px !important;
+  }
+
+  body.session-active .feedback-text p {
+    font-size: 0.82rem !important;
+    margin: 0 !important;
+  }
+
+  body.session-active .explanation-box {
+    margin-top: 8px !important;
+    padding: 8px 10px !important;
+    font-size: 0.82rem;
+  }
+
+  /* Kompakte Fragenelemente innerhalb der scrollbaren Karte */
+  body.session-active .tense-header-banner {
+    padding: 8px 12px !important;
+    margin-bottom: 10px !important;
+    font-size: 0.82rem !important;
+  }
+
+  body.session-active .prompt-grid-boxes {
+    grid-template-columns: 1fr 1fr !important;
+    margin-bottom: 10px !important;
+    gap: 8px !important;
+  }
+
+  body.session-active .prompt-box-element {
     padding: 8px 10px !important;
   }
-  .prompt-box-element .box-label {
-    margin-bottom: 3px !important;
+
+  body.session-active .prompt-box-element .box-label {
+    margin-bottom: 2px !important;
     font-size: 0.65rem !important;
   }
-  .prompt-box-element .box-value {
+
+  body.session-active .prompt-box-element .box-value {
     font-size: 1rem !important;
   }
-  .context-sentence-card {
-    padding: 12px 14px !important;
-    margin-bottom: 12px !important;
+
+  body.session-active .context-sentence-card {
+    padding: 10px 12px !important;
+    margin-bottom: 10px !important;
   }
-  .context-sentence-card .context-sentence {
-    font-size: 1.15rem !important;
-    line-height: 1.45 !important;
+
+  body.session-active .context-sentence-card .context-sentence {
+    font-size: 1.1rem !important;
+    line-height: 1.4 !important;
   }
-  .context-hint-area {
-    margin: 8px 0 12px;
-    padding: 10px 12px;
+
+  body.session-active .context-hint-area {
+    margin: 6px 0 10px;
+    padding: 8px 10px;
   }
-  .hint-btn-wrapper {
-    margin-bottom: 12px !important;
+
+  body.session-active .hint-btn-wrapper {
+    margin-bottom: 10px !important;
   }
-  .feedback-widget {
-    margin-top: 12px;
-    padding: 12px 16px;
-    gap: 10px !important;
+
+  body.session-active .accent-keyboard {
+    margin-top: 8px !important;
   }
-  .feedback-status {
-    gap: 10px !important;
-  }
-  .feedback-icon-container {
+
+  body.session-active .accent-btn {
     width: 36px !important;
     height: 36px !important;
     font-size: 0.9rem !important;
-  }
-  .feedback-text h4 {
-    font-size: 1.05rem !important;
-    margin-bottom: 2px !important;
-  }
-  .feedback-text p {
-    font-size: 0.85rem !important;
-    margin: 0 !important;
-  }
-  .explanation-box {
-    margin-top: 10px;
-    padding: 10px 12px;
-    max-height: 110px;
-    overflow-y: auto;
   }
 }
 

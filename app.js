@@ -730,6 +730,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     practiceSession.classList.remove("hidden");
     if (appHeader) appHeader.classList.add("hidden");
+    document.body.classList.add("session-active");
     showQuestion();
   }
 
@@ -843,6 +844,7 @@ document.addEventListener("DOMContentLoaded", () => {
     practiceMenu.classList.add("hidden");
     sessionSummary.classList.add("hidden");
     practiceSession.classList.remove("hidden");
+    document.body.classList.add("session-active");
     
     showQuestion();
   }
@@ -1774,6 +1776,7 @@ document.addEventListener("DOMContentLoaded", () => {
     practiceSession.classList.add("hidden");
     sessionSummary.classList.remove("hidden");
     if (appHeader) appHeader.classList.remove("hidden");
+    document.body.classList.remove("session-active");
 
     const total = session.attempts;
     const correct = session.score;
@@ -1887,6 +1890,7 @@ document.addEventListener("DOMContentLoaded", () => {
     sessionSummary.classList.add("hidden");
     practiceSession.classList.remove("hidden");
     if (appHeader) appHeader.classList.add("hidden");
+    document.body.classList.add("session-active");
 
     showQuestion();
   }
@@ -1941,6 +1945,7 @@ document.addEventListener("DOMContentLoaded", () => {
         practiceSession.classList.add("hidden");
         practiceMenu.classList.remove("hidden");
         if (appHeader) appHeader.classList.remove("hidden");
+        document.body.classList.remove("session-active");
       }
     });
 

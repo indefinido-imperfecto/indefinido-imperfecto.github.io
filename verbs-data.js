@@ -1354,7 +1354,7 @@ const CONTEXT_EXERCISES = [
     "explanation": "Abgeschlossene Handlung der Geschichte -> Indefinido."
   },
   {
-    "sentence": "El idioma español ___ (ser) muy importante para unir a la sociedad colonial. (rückblickende Gesamtbewertung)",
+    "sentence": "El idioma español ___ (ser) muy importante para unir a la sociedad colonial. (Bedeutung der Sprache in der Geschichte)",
     "verb": "ser",
     "person": "el",
     "correctTense": "indefinido",
@@ -1363,7 +1363,7 @@ const CONTEXT_EXERCISES = [
     "explanation": "Rückblickende Bewertung einer abgeschlossenen historischen Epoche -> Indefinido."
   },
   {
-    "sentence": "El idioma español ___ (ser) muy importante para unir a la sociedad colonial. (seine anhaltende Rolle während der Kolonialzeit)",
+    "sentence": "El idioma español ___ (ser) muy importante para unir a la sociedad colonial. (Sprache und Kolonialgesellschaft)",
     "verb": "ser",
     "person": "el",
     "correctTense": "imperfecto",
@@ -1642,7 +1642,7 @@ const CONTEXT_EXERCISES = [
     "explanation": "Beschreibung einer im Hintergrund andauernden Handlung (Szenenbeschreibung) -> Imperfecto."
   },
   {
-    "sentence": "Ella ___ (estar) molesta. (als anhaltende Gemütslage)",
+    "sentence": "Ella ___ (estar) molesta. (Malinellis Stimmung)",
     "verb": "estar",
     "person": "el",
     "correctTense": "imperfecto",
@@ -1651,7 +1651,7 @@ const CONTEXT_EXERCISES = [
     "explanation": "Beschreibung eines andauernden mentalen Zustands in der Vergangenheit -> Imperfecto."
   },
   {
-    "sentence": "Ella ___ (estar) molesta. (als kurze, überwundene Reaktion)",
+    "sentence": "Ella ___ (estar) molesta. (ihre Reaktion)",
     "verb": "estar",
     "person": "el",
     "correctTense": "indefinido",
@@ -1714,7 +1714,7 @@ const CONTEXT_EXERCISES = [
     "explanation": "Beschreibung einer andauernden Notwendigkeit -> Imperfecto."
   },
   {
-    "sentence": "Los españoles ___ (ser) escandalosos. (als allgemeinen Charakter der Gruppe)",
+    "sentence": "Los españoles ___ (ser) escandalosos. (Charakter der Spanier)",
     "verb": "ser",
     "person": "ellos",
     "correctTense": "imperfecto",
@@ -1723,7 +1723,7 @@ const CONTEXT_EXERCISES = [
     "explanation": "Beschreibung einer dauerhaften Charaktereigenschaft einer Gruppe in der Vergangenheit -> Imperfecto."
   },
   {
-    "sentence": "Los españoles ___ (ser) escandalosos. (bei diesem konkreten Auftreten)",
+    "sentence": "Los españoles ___ (ser) escandalosos. (ihr Auftreten)",
     "verb": "ser",
     "person": "ellos",
     "correctTense": "indefinido",

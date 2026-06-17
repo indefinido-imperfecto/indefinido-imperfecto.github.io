@@ -12,12 +12,13 @@
  */
 
 window.FIREBASE_CONFIG = {
-  apiKey: "DEIN_API_KEY",
-  authDomain: "DEIN_PROJECT_ID.firebaseapp.com",
-  projectId: "DEIN_PROJECT_ID",
-  storageBucket: "DEIN_PROJECT_ID.appspot.com",
-  messagingSenderId: "DEINE_MESSAGING_SENDER_ID",
-  appId: "DEINE_APP_ID"
+  apiKey: "AIzaSyAgSGwPwLE23hoawe_ZgBJExpdftEmTZCk",
+  authDomain: "indefinido-imperfecto.firebaseapp.com",
+  projectId: "indefinido-imperfecto",
+  storageBucket: "indefinido-imperfecto.firebasestorage.app",
+  messagingSenderId: "401386397693",
+  appId: "1:401386397693:web:1755ea045db08af0818394",
+  measurementId: "G-KZ54Q1QEQE"
 };
 
 // Überprüfung, ob die Konfiguration vom Nutzer ausgefüllt wurde

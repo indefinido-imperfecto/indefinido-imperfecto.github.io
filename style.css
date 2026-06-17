@@ -2873,7 +2873,36 @@ td .person-number-badge {
     height: 36px !important;
     font-size: 0.9rem !important;
   }
+
+  /* -----------------------------------------------------------------------
+     TASTATUR-OFFEN MODUS: Nicht-essentielle Elemente ausblenden
+     Spart ~120px vertikalen Platz damit das Eingabefeld immer sichtbar ist
+     ----------------------------------------------------------------------- */
+  body.session-active.keyboard-open .session-header {
+    display: none !important;
+  }
+
+  body.session-active.keyboard-open .tense-header-banner {
+    display: none !important;
+  }
+
+  body.session-active.keyboard-open .hint-btn-wrapper {
+    display: none !important;
+  }
+
+  body.session-active.keyboard-open .context-hint-area {
+    display: none !important;
+  }
+
+  body.session-active.keyboard-open #btn-next-question {
+    display: none !important;
+  }
+
+  body.session-active.keyboard-open #feedback-widget {
+    display: none !important;
+  }
 }
+
 
 
 

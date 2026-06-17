@@ -231,22 +231,41 @@ document.addEventListener("DOMContentLoaded", () => {
     initViewportFix(); // iOS Safari Tastatur-Fix
   }
 
-  // Fix für iOS Safari: wenn Tastatur aufgeht, schrumpft visualViewport.
-  // Wir setzen die Höhe von #practice-session auf den sichtbaren Bereich,
-  // damit das Eingabefeld nie hinter der Tastatur verschwindet.
+  // iOS-Tastatur-Fix: Wenn das Eingabefeld fokussiert wird (Tastatur öffnet sich),
+  // setzen wir body.keyboard-open. CSS blendet dann Fortschrittsleiste, Hint-Bereich
+  // und Zeitform-Banner aus, damit das Eingabefeld genug Platz hat.
   function initViewportFix() {
-    if (!window.visualViewport) return; // Nur für Browser mit Unterstützung
-    window.visualViewport.addEventListener('resize', () => {
-      if (!document.body.classList.contains('session-active')) return;
-      const vv = window.visualViewport;
-      practiceSession.style.height = vv.height + 'px';
-      practiceSession.style.top = vv.offsetTop + 'px';
+    // Event-Delegation: hört auf Focus/Blur auf allen Inputs innerhalb der Übung
+    questionCard.addEventListener('focusin', (e) => {
+      if (e.target.matches('input, textarea')) {
+        document.body.classList.add('keyboard-open');
+      }
     });
-    window.visualViewport.addEventListener('scroll', () => {
-      if (!document.body.classList.contains('session-active')) return;
-      const vv = window.visualViewport;
-      practiceSession.style.top = vv.offsetTop + 'px';
+    questionCard.addEventListener('focusout', (e) => {
+      if (e.target.matches('input, textarea')) {
+        // Kurze Verzögerung, damit Accent-Button-Klicks noch registriert werden
+        setTimeout(() => {
+          if (!questionCard.querySelector('input:focus, textarea:focus')) {
+            document.body.classList.remove('keyboard-open');
+          }
+        }, 200);
+      }
     });
+
+    // Fallback via visualViewport
+    if (window.visualViewport) {
+      let initialHeight = window.visualViewport.height;
+      window.visualViewport.addEventListener('resize', () => {
+        if (!document.body.classList.contains('session-active')) return;
+        const currentHeight = window.visualViewport.height;
+        if (currentHeight < initialHeight - 150) {
+          document.body.classList.add('keyboard-open');
+        } else {
+          document.body.classList.remove('keyboard-open');
+          initialHeight = currentHeight;
+        }
+      });
+    }
   }
 
   // ==========================================================================

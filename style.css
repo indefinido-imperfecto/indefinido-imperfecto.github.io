@@ -2599,6 +2599,7 @@ td .person-number-badge {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
 .category-header {
@@ -2670,6 +2671,8 @@ td .person-number-badge {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .submode-title {

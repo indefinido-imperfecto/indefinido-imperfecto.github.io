@@ -1354,13 +1354,22 @@ const CONTEXT_EXERCISES = [
     "explanation": "Abgeschlossene Handlung der Geschichte -> Indefinido."
   },
   {
-    "sentence": "El idioma español ___ (ser) muy importante para unir a la sociedad colonial.",
+    "sentence": "El idioma español ___ (ser) muy importante para unir a la sociedad colonial. (rückblickende Gesamtbewertung)",
     "verb": "ser",
     "person": "el",
     "correctTense": "indefinido",
     "correctAnswer": "fue",
     "translation": "Die spanische Sprache war sehr wichtig, um die Kolonialgesellschaft zu vereinen.",
     "explanation": "Rückblickende Bewertung einer abgeschlossenen historischen Epoche -> Indefinido."
+  },
+  {
+    "sentence": "El idioma español ___ (ser) muy importante para unir a la sociedad colonial. (seine anhaltende Rolle während der Kolonialzeit)",
+    "verb": "ser",
+    "person": "el",
+    "correctTense": "imperfecto",
+    "correctAnswer": "era",
+    "translation": "Die spanische Sprache war [fortlaufend] sehr wichtig, um die Kolonialgesellschaft zu vereinen.",
+    "explanation": "Beschreibung einer dauerhaften, aktiven Funktion während der Kolonialzeit -> Imperfecto."
   },
   {
     "sentence": "El español se ___ (convertir) en el idioma oficial del Imperio.",
@@ -1516,7 +1525,7 @@ const CONTEXT_EXERCISES = [
     "explanation": "Hintergrundgeschehen in der Vergangenheit (Zustand) -> Imperfecto."
   },
   {
-    "sentence": "Solo ___ (comprar) eine Sache in diesen Monaten: ein neues Radio.",
+    "sentence": "Solo ___ (comprar) una cosa en esos meses: una radio nueva.",
     "verb": "comprar",
     "person": "yo",
     "correctTense": "indefinido",
@@ -1633,13 +1642,22 @@ const CONTEXT_EXERCISES = [
     "explanation": "Beschreibung einer im Hintergrund andauernden Handlung (Szenenbeschreibung) -> Imperfecto."
   },
   {
-    "sentence": "Ella ___ (estar) molesta.",
+    "sentence": "Ella ___ (estar) molesta. (als anhaltende Gemütslage)",
     "verb": "estar",
     "person": "el",
     "correctTense": "imperfecto",
     "correctAnswer": "estaba",
     "translation": "Sie war verärgert.",
-    "explanation": "Beschreibung eines mentalen Zustands in der Vergangenheit -> Imperfecto."
+    "explanation": "Beschreibung eines andauernden mentalen Zustands in der Vergangenheit -> Imperfecto."
+  },
+  {
+    "sentence": "Ella ___ (estar) molesta. (als kurze, überwundene Reaktion)",
+    "verb": "estar",
+    "person": "el",
+    "correctTense": "indefinido",
+    "correctAnswer": "estuvo",
+    "translation": "Sie war (kurz) verärgert (und hatte sich danach wieder beruhigt).",
+    "explanation": "'Estuvo molesta' bedeutet, dass der Ärger ein klar abgeschlossenes Ende hatte -> Indefinido."
   },
   {
     "sentence": "En el río ___ (haber) mucho ruido. Demasiado.",
@@ -1696,13 +1714,22 @@ const CONTEXT_EXERCISES = [
     "explanation": "Beschreibung einer andauernden Notwendigkeit -> Imperfecto."
   },
   {
-    "sentence": "Los españoles ___ (ser) escandalosos.",
+    "sentence": "Los españoles ___ (ser) escandalosos. (als allgemeinen Charakter der Gruppe)",
     "verb": "ser",
     "person": "ellos",
     "correctTense": "imperfecto",
     "correctAnswer": "eran",
-    "translation": "Die Spanier waren laut (skandalös).",
-    "explanation": "Beschreibung einer Charaktereigenschaft einer Gruppe -> Imperfecto."
+    "translation": "Die Spanier waren [generell] laut (skandalös).",
+    "explanation": "Beschreibung einer dauerhaften Charaktereigenschaft einer Gruppe in der Vergangenheit -> Imperfecto."
+  },
+  {
+    "sentence": "Los españoles ___ (ser) escandalosos. (bei diesem konkreten Auftreten)",
+    "verb": "ser",
+    "person": "ellos",
+    "correctTense": "indefinido",
+    "correctAnswer": "fueron",
+    "translation": "Die Spanier waren [bei dieser Begegnung] laut (skandalös).",
+    "explanation": "Eine konkrete Beobachtung ihres Auftretens in diesem Moment, nicht eine allgemeine Eigenschaft -> Indefinido."
   },
   {
     "sentence": "Ellos ___ (hacer) mucho ruido con sus armaduras y cañones.",

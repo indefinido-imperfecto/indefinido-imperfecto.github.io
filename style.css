@@ -2310,7 +2310,7 @@ td .person-number-badge {
 
 .leaderboard-header {
   display: grid;
-  grid-template-columns: 80px 1fr 100px 100px;
+  grid-template-columns: 50px 1fr 80px 80px;
   padding: 12px 20px;
   font-size: 0.8rem;
   font-weight: 700;
@@ -2329,7 +2329,7 @@ td .person-number-badge {
 
 .leaderboard-row {
   display: grid;
-  grid-template-columns: 80px 1fr 100px 100px;
+  grid-template-columns: 50px 1fr 80px 80px;
   padding: 14px 20px;
   background: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.03);
@@ -2379,6 +2379,9 @@ td .person-number-badge {
   text-align: left;
   font-weight: 600;
   font-size: 1.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .leaderboard-row .streak-col {
@@ -2868,6 +2871,18 @@ td .person-number-badge {
 
   .progress-xp-next-sub {
     font-size: 0.75rem !important;
+  }
+
+  /* Glass Card Mobile Padding */
+  .glass-card {
+    padding: 20px 16px;
+  }
+
+  /* Leaderboard Mobile Columns */
+  .leaderboard-header,
+  .leaderboard-row {
+    grid-template-columns: 45px 1fr 75px 75px;
+    padding: 12px 10px;
   }
 }
 

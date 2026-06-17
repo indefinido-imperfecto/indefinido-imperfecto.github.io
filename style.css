@@ -881,7 +881,7 @@ button {
 
 .stats-panel {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin: 32px 0;
 }
@@ -2883,6 +2883,13 @@ td .person-number-badge {
   .leaderboard-row {
     grid-template-columns: 45px 1fr 75px 75px;
     padding: 12px 10px;
+  }
+
+  /* Summary Panel Mobile (2x2 grid) */
+  .stats-panel {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin: 20px 0;
   }
 }
 

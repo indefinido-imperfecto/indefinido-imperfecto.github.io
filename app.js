@@ -1858,6 +1858,13 @@ document.addEventListener("DOMContentLoaded", () => {
     statWrong.textContent = wrong;
     statAccuracy.textContent = `${accuracy}%`;
 
+    // XP berechnen und anzeigen
+    const xpEarned = (correct * 10) + 50;
+    const statXpEarned = document.getElementById("stat-xp-earned");
+    if (statXpEarned) {
+      statXpEarned.textContent = `+${xpEarned}`;
+    }
+
     // Fehlerliste rendern
     if (session.wrongAnswers.length > 0) {
       wrongAnswersListContainer.classList.remove("hidden");

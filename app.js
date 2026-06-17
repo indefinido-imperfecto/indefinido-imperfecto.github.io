@@ -236,36 +236,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // - visualViewport.height direkt als px-Höhe auf den Container setzen
   // - keyboard-open Klasse: blendet alles Nicht-Essentielle aus
   function initViewportFix() {
-    // Tastatur-Erkennung per visualViewport – nur keyboard-open Klasse setzen,
-    // KEINE manuelle Höhe setzen (position:fixed top:0 bottom:0 erledigt das)
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', () => {
-        if (!document.body.classList.contains('session-active')) return;
-        const h = window.visualViewport.height;
-        if (window.screen.height - h > 150) {
-          document.body.classList.add('keyboard-open');
-        } else {
-          document.body.classList.remove('keyboard-open');
-        }
-      });
-    }
-
-    // Focus auf Inputs: Tastatur-Klasse setzen + Input in Sicht scrollen
+    // Auf Mobile: fokussiertes Input in den sichtbaren Bereich scrollen
     questionCard.addEventListener('focusin', (e) => {
       if (!e.target.matches('input')) return;
-      document.body.classList.add('keyboard-open');
       setTimeout(() => {
         e.target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
       }, 400);
-    });
-
-    questionCard.addEventListener('focusout', (e) => {
-      if (!e.target.matches('input')) return;
-      setTimeout(() => {
-        if (!questionCard.querySelector('input:focus')) {
-          document.body.classList.remove('keyboard-open');
-        }
-      }, 150);
     });
   }
 
@@ -1104,7 +1080,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button class="accent-btn" data-char="ú">ú</button>
           <button class="accent-btn" data-char="ñ">ñ</button>
         </div>
-        <button id="btn-submit-answer" class="btn-primary" style="width: 100%; margin-top: 10px;">Antwort prüfen</button>
+        <button id="btn-submit-answer" class="btn-primary" style="width: 100%; margin-top: 10px;"><i class="fa-solid fa-check"></i><span class="btn-label"> Antwort prüfen</span></button>
       </div>
     `;
 
@@ -1301,7 +1277,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button class="accent-btn" data-char="ú">ú</button>
           <button class="accent-btn" data-char="ñ">ñ</button>
         </div>
-        <button id="btn-submit-answer" class="btn-primary" style="width: 100%; margin-top: 10px;">Antwort prüfen</button>
+        <button id="btn-submit-answer" class="btn-primary" style="width: 100%; margin-top: 10px;"><i class="fa-solid fa-check"></i><span class="btn-label"> Antwort prüfen</span></button>
       </div>
     `;
 

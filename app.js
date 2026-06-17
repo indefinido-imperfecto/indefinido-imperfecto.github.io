@@ -228,6 +228,25 @@ document.addEventListener("DOMContentLoaded", () => {
     setupEventListeners();
     renderVerbLibrary();
     initFirebase(); // Firebase-Verbindung herstellen (falls konfiguriert)
+    initViewportFix(); // iOS Safari Tastatur-Fix
+  }
+
+  // Fix für iOS Safari: wenn Tastatur aufgeht, schrumpft visualViewport.
+  // Wir setzen die Höhe von #practice-session auf den sichtbaren Bereich,
+  // damit das Eingabefeld nie hinter der Tastatur verschwindet.
+  function initViewportFix() {
+    if (!window.visualViewport) return; // Nur für Browser mit Unterstützung
+    window.visualViewport.addEventListener('resize', () => {
+      if (!document.body.classList.contains('session-active')) return;
+      const vv = window.visualViewport;
+      practiceSession.style.height = vv.height + 'px';
+      practiceSession.style.top = vv.offsetTop + 'px';
+    });
+    window.visualViewport.addEventListener('scroll', () => {
+      if (!document.body.classList.contains('session-active')) return;
+      const vv = window.visualViewport;
+      practiceSession.style.top = vv.offsetTop + 'px';
+    });
   }
 
   // ==========================================================================

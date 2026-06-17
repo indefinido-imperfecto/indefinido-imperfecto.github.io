@@ -2730,8 +2730,12 @@ td .person-number-badge {
    ========================================================================== */
 @media (max-width: 600px) {
   /* Seite einfrieren – kein äußeres Scrollen mehr */
+  /* position: fixed verhindert auf iOS Safari, dass die Adressleiste rein scrollt */
   body.session-active {
     overflow: hidden;
+    position: fixed;
+    width: 100%;
+    top: 0;
   }
 
   /* Practice-Session nimmt den gesamten Bildschirm ein */

@@ -2844,6 +2844,31 @@ td .person-number-badge {
     margin-bottom: 2px;
   }
 
+  /* Dashboard Cards Mobile */
+  .stat-dashboard-card {
+    padding: 16px 20px;
+    gap: 16px;
+  }
+
+  .card-icon-large {
+    font-size: 2.2rem;
+    width: 48px;
+    height: 48px;
+  }
+
+  .stat-dashboard-card h2 {
+    font-size: 1.25rem;
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .xp-text {
+    font-size: 0.85rem;
+  }
+
+  .progress-xp-next-sub {
+    font-size: 0.75rem !important;
+  }
 }
 
 /* ==========================================================================

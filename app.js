@@ -500,23 +500,53 @@ document.addEventListener("DOMContentLoaded", () => {
     saveStats();
   }
 
+  function formatXP(xp) {
+    if (xp >= 1000000) {
+      return (xp / 1000000).toFixed(1).replace(/\.0$/, "") + "M";
+    }
+    if (xp >= 1000) {
+      return (xp / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+    }
+    return xp.toString();
+  }
+
   function getLevelInfo() {
-    const LevelThreshold = 100; // 100 XP pro Level
-    const currentLevel = Math.floor(stats.xp / LevelThreshold) + 1;
-    const xpInCurrentLevel = stats.xp % LevelThreshold;
-    const xpNeededForNext = LevelThreshold - xpInCurrentLevel;
-    const fillPercent = (xpInCurrentLevel / LevelThreshold) * 100;
+    const xp = stats.xp || 0;
+    
+    // Quadratische Kurve: cumulative_xp(L) = 100 * L * (L - 1)
+    // Auflösen nach L: L = Math.floor((1 + Math.sqrt(1 + 0.04 * xp)) / 2)
+    const currentLevel = Math.floor((1 + Math.sqrt(1 + 0.04 * xp)) / 2) || 1;
+    
+    // XP benötigt um das aktuelle Level zu erreichen
+    const xpForCurrentLevel = 100 * currentLevel * (currentLevel - 1);
+    // XP benötigt um das nächste Level zu erreichen
+    const xpForNextLevel = 100 * (currentLevel + 1) * currentLevel;
+    
+    const levelSize = xpForNextLevel - xpForCurrentLevel;
+    const xpInCurrentLevel = xp - xpForCurrentLevel;
+    const xpNeededForNext = xpForNextLevel - xp;
+    const fillPercent = (xpInCurrentLevel / levelSize) * 100;
     
     const LEVEL_TITLES = [
-      "Principiante del Pasado (Level 1)",
-      "Estudiante Aventurero (Level 2)",
-      "Explorador de Tiempos (Level 3)",
-      "Cazador de Verbos (Level 4)",
-      "Señor del Pasado (Level 5)",
-      "Gran Maestro del Tiempo (Level 6+)"
+      "Principiante del Pasado",
+      "Estudiante Aventurero",
+      "Explorador de Tiempos",
+      "Cazador de Verbos",
+      "Señor del Pasado",
+      "Guerrero del Imperfecto",
+      "Conquistador del Indefinido",
+      "Mago de la Conjugación",
+      "Sabio del Pretérito",
+      "Gran Maestro del Tiempo",
+      "Señor del Tiempo y Espacio",
+      "Semidiós del Pretérito",
+      "Arquitecto del Pasado",
+      "Cronomante Supremo",
+      "Deidad de los Tiempos"
     ];
     
-    const title = LEVEL_TITLES[Math.min(currentLevel - 1, LEVEL_TITLES.length - 1)];
+    const titleBase = LEVEL_TITLES[Math.min(currentLevel - 1, LEVEL_TITLES.length - 1)];
+    const title = `${titleBase} (Level ${currentLevel})`;
     
     return {
       level: currentLevel,
@@ -557,9 +587,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. Level und XP rendern
     const lvlInfo = getLevelInfo();
     progressLevel.textContent = lvlInfo.title;
-    progressXpText.textContent = `${stats.xp} XP Gesamt`;
+    progressXpText.textContent = `${formatXP(stats.xp)} XP Gesamt`;
     progressXpFill.style.width = `${lvlInfo.percent}%`;
-    progressXpNext.textContent = `Noch ${lvlInfo.xpNeeded} XP bis Level ${lvlInfo.level + 1}`;
+    progressXpNext.textContent = `Noch ${formatXP(lvlInfo.xpNeeded)} XP bis Level ${lvlInfo.level + 1}`;
 
     // 3. Problemverben rendern
     troubleVerbsList.innerHTML = "";
@@ -2489,7 +2519,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="rank-col">${rankDisplay}</span>
           <span class="user-col">${username}</span>
           <span class="streak-col"><i class="fa-solid fa-fire"></i> ${streak}</span>
-          <span class="xp-col">${xp} XP</span>
+          <span class="xp-col">${formatXP(xp)} XP</span>
         `;
         listElement.appendChild(row);
         rank++;

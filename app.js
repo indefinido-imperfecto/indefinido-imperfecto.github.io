@@ -1749,6 +1749,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Button-Wechsel
     btnNextQuestion.focus();
+
+    // Automatisch zum "Weiter"-Button scrollen, sobald die Tastatur weggerutscht ist
+    setTimeout(() => {
+      btnNextQuestion.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }, 150);
   }
 
   // Nächste Frage oder Ergebnis

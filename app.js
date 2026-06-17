@@ -236,17 +236,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // - visualViewport.height direkt als px-Höhe auf den Container setzen
   // - keyboard-open Klasse: blendet alles Nicht-Essentielle aus
   function initViewportFix() {
+    // Tastatur-Erkennung per visualViewport – nur keyboard-open Klasse setzen,
+    // KEINE manuelle Höhe setzen (position:fixed top:0 bottom:0 erledigt das)
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', () => {
         if (!document.body.classList.contains('session-active')) return;
         const h = window.visualViewport.height;
-        practiceSession.style.height = h + 'px';
-        // Tastatur offen wenn Viewport deutlich kleiner als Bildschirm
         if (window.screen.height - h > 150) {
           document.body.classList.add('keyboard-open');
         } else {
           document.body.classList.remove('keyboard-open');
-          practiceSession.style.height = '';
         }
       });
     }
@@ -265,7 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => {
         if (!questionCard.querySelector('input:focus')) {
           document.body.classList.remove('keyboard-open');
-          practiceSession.style.height = '';
         }
       }, 150);
     });
@@ -1699,9 +1697,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let feedbackMsg = "";
     let isAccentError = false;
 
-    // Deaktiviere Eingaben
+    // Deaktiviere Eingaben und schließe Tastatur
     const input = document.getElementById("user-answer-input");
     if (input) {
+      input.blur(); // Tastatur auf Mobilgeräten schließen
       input.disabled = true;
       if (isMatch) {
         input.style.color = "var(--success)";

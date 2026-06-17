@@ -2830,7 +2830,7 @@ td .person-number-badge {
     left: 0;
     right: 0;
     bottom: 0;
-    height: 100dvh; /* dynamic viewport height – ignoriert Browser-UI */
+    /* Kein height: 100dvh – top+bottom:0 reicht und vermeidet Konflikte mit JS */
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -2979,13 +2979,8 @@ td .person-number-badge {
     display: none !important;
   }
 
-  body.session-active.keyboard-open #btn-next-question {
-    display: none !important;
-  }
-
-  body.session-active.keyboard-open #feedback-widget {
-    display: none !important;
-  }
+  /* Weiter-Button und Feedback bleiben immer sichtbar – der Nutzer muss
+     nach dem Tippen weiterkommen können, auch wenn die Tastatur noch offen ist */
 }
 
 

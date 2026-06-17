@@ -477,6 +477,39 @@ html {
   border-bottom-color: var(--primary);
 }
 
+/* Inline-Lückeninput: sitzt direkt im Satz */
+.context-sentence .cloze-input {
+  display: inline-block;
+  vertical-align: middle;
+  background: rgba(138, 99, 255, 0.08);
+  border: none;
+  border-bottom: 3px solid var(--primary);
+  border-radius: 4px 4px 0 0;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 700;
+  text-align: center;
+  min-width: 100px;
+  width: 140px;
+  padding: 4px 8px;
+  margin: 0 4px;
+  outline: none;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  line-height: 1.2;
+}
+
+.context-sentence .cloze-input:focus {
+  background: rgba(138, 99, 255, 0.15);
+  border-bottom-color: var(--secondary);
+  box-shadow: 0 3px 10px rgba(138, 99, 255, 0.25);
+}
+
+.context-sentence .cloze-input:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
 .context-sentence .verb-hint {
   font-size: 0.95rem;
   color: var(--text-muted);
@@ -2861,14 +2894,6 @@ td .person-number-badge {
     flex-direction: column;
   }
 
-  /* Fragen-Views: Input wird ans Ende der Karte geschoben */
-  body.session-active .context-question-view,
-  body.session-active .conjugate-question-view {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
   /* Weiter-Button: volle Breite, klarer Abstand, kein Radius */
   body.session-active #btn-next-question {
     flex-shrink: 0;
@@ -2949,7 +2974,16 @@ td .person-number-badge {
 
   body.session-active .context-sentence {
     font-size: 1rem !important;
-    line-height: 1.4 !important;
+    line-height: 2 !important; /* Platz für das Inline-Input */
+  }
+
+  /* Inline-Lückeninput auf Mobile: breiter und touch-freundlicher */
+  body.session-active .context-sentence .cloze-input {
+    width: 130px !important;
+    min-width: 80px !important;
+    padding: 4px 6px !important;
+    font-size: 1rem !important;
+    border-bottom-width: 3px !important;
   }
 
   body.session-active .hint-btn-wrapper {
@@ -2960,46 +2994,6 @@ td .person-number-badge {
   body.session-active .context-hint-area {
     padding: 8px 10px !important;
     margin-bottom: 6px !important;
-  }
-
-  /* Input-Bereich: ans Ende der Flex-Spalte pushen, Input + Button nebeneinander */
-  body.session-active .input-area {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: stretch !important;
-    gap: 8px !important;
-    margin: auto 0 12px 0 !important;
-    max-width: none !important;
-    width: 100% !important;
-    padding-top: 10px;
-  }
-
-  body.session-active .text-input-wrapper {
-    flex: 1 !important;
-    min-width: 0 !important;
-  }
-
-  body.session-active .answer-input {
-    height: 52px !important;
-    padding: 0 14px !important;
-    font-size: 1.1rem !important;
-    text-align: left !important;
-  }
-
-  /* Submit-Button: kleines lila Quadrat, nur ✓-Icon */
-  body.session-active #btn-submit-answer {
-    flex-shrink: 0 !important;
-    width: 52px !important;
-    min-width: 52px !important;
-    height: 52px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-radius: 12px !important;
-    font-size: 1.3rem !important;
-  }
-
-  body.session-active #btn-submit-answer .btn-label {
-    display: none !important;
   }
 
   /* Multiple-Choice-Modi: Buttons kompakter */

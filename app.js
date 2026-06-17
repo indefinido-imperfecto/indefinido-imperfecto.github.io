@@ -1218,8 +1218,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.createElement("div");
     container.className = "context-question-view fade-in";
 
-    // Textlücke visuell aufbereiten
-    const displaySentence = q.sentence.replace("___", `<span class="cloze-gap active" id="cloze-gap-view">___</span>`);
+    // Input direkt in der Lücke im Satz
+    const displaySentence = q.sentence.replace("___",
+      `<input type="text" id="user-answer-input" class="cloze-input"
+        autocomplete="off" autocorrect="off" autocapitalize="none"
+        spellcheck="false" placeholder="···" autofocus>`
+    );
 
     // Übersetzung des Verbs (Infinitiv) nachschlagen, falls Übersetzungen nicht ausgeblendet sind
     const verbObj = window.VERBS_DATABASE.find(v => v.infinitive === q.verb);
@@ -1259,26 +1263,22 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </div>
 
-      <div class="hint-btn-wrapper" style="text-align: center; margin-bottom: 20px;">
+      <div class="hint-btn-wrapper" style="text-align: center; margin-bottom: 16px;">
         <button type="button" id="btn-toggle-context-hint" class="btn-hint-toggle">
           <i class="fa-solid fa-lightbulb"></i> <span>Hilfe / Übersetzung anzeigen</span>
         </button>
       </div>
 
-      <div class="input-area">
-        <div class="text-input-wrapper">
-          <input type="text" id="user-answer-input" class="answer-input" autocomplete="off" placeholder="Setze die richtige konjugierte Form ein..." autofocus>
-        </div>
-        <div class="accent-keyboard">
-          <button class="accent-btn" data-char="á">á</button>
-          <button class="accent-btn" data-char="é">é</button>
-          <button class="accent-btn" data-char="í">í</button>
-          <button class="accent-btn" data-char="ó">ó</button>
-          <button class="accent-btn" data-char="ú">ú</button>
-          <button class="accent-btn" data-char="ñ">ñ</button>
-        </div>
-        <button id="btn-submit-answer" class="btn-primary" style="width: 100%; margin-top: 10px;"><i class="fa-solid fa-check"></i><span class="btn-label"> Antwort prüfen</span></button>
+      <div class="accent-keyboard">
+        <button class="accent-btn" data-char="á">á</button>
+        <button class="accent-btn" data-char="é">é</button>
+        <button class="accent-btn" data-char="í">í</button>
+        <button class="accent-btn" data-char="ó">ó</button>
+        <button class="accent-btn" data-char="ú">ú</button>
+        <button class="accent-btn" data-char="ñ">ñ</button>
       </div>
+
+      <button id="btn-submit-answer" class="btn-primary" style="width: 100%; margin-top: 10px;"><i class="fa-solid fa-check"></i><span class="btn-label"> Antwort prüfen</span></button>
     `;
 
     questionCard.appendChild(container);

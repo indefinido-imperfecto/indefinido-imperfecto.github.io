@@ -2169,8 +2169,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!/^[a-zA-Z0-9_äöüÄÖÜß]+$/.test(cleanUser)) {
       return "Der Benutzername darf nur Buchstaben, Zahlen und Unterstriche enthalten.";
     }
-    if (!/^\d{4,6}$/.test(pin)) {
-      return "Die PIN muss aus 4 bis 6 Ziffern bestehen.";
+    if (!/^\d{6}$/.test(pin)) {
+      return "Die PIN muss aus genau 6 Ziffern bestehen.";
     }
     return null;
   }

@@ -231,42 +231,46 @@ document.addEventListener("DOMContentLoaded", () => {
     initViewportFix(); // iOS Safari Tastatur-Fix
   }
 
-  // iOS-Tastatur-Fix: Wenn das Eingabefeld fokussiert wird (Tastatur öffnet sich),
-  // setzen wir body.keyboard-open. CSS blendet dann Fortschrittsleiste, Hint-Bereich
-  // und Zeitform-Banner aus, damit das Eingabefeld genug Platz hat.
+  // iOS-Tastatur-Fix.
+  // Das einzig zuverlässige Muster auf iOS Safari:
+  // - visualViewport.height direkt als px-Höhe auf den Container setzen
+  // - keyboard-open Klasse: blendet alles Nicht-Essentielle aus
   function initViewportFix() {
-    // Event-Delegation: hört auf Focus/Blur auf allen Inputs innerhalb der Übung
-    questionCard.addEventListener('focusin', (e) => {
-      if (e.target.matches('input, textarea')) {
-        document.body.classList.add('keyboard-open');
-      }
-    });
-    questionCard.addEventListener('focusout', (e) => {
-      if (e.target.matches('input, textarea')) {
-        // Kurze Verzögerung, damit Accent-Button-Klicks noch registriert werden
-        setTimeout(() => {
-          if (!questionCard.querySelector('input:focus, textarea:focus')) {
-            document.body.classList.remove('keyboard-open');
-          }
-        }, 200);
-      }
-    });
-
-    // Fallback via visualViewport
     if (window.visualViewport) {
-      let initialHeight = window.visualViewport.height;
       window.visualViewport.addEventListener('resize', () => {
         if (!document.body.classList.contains('session-active')) return;
-        const currentHeight = window.visualViewport.height;
-        if (currentHeight < initialHeight - 150) {
+        const h = window.visualViewport.height;
+        practiceSession.style.height = h + 'px';
+        // Tastatur offen wenn Viewport deutlich kleiner als Bildschirm
+        if (window.screen.height - h > 150) {
           document.body.classList.add('keyboard-open');
         } else {
           document.body.classList.remove('keyboard-open');
-          initialHeight = currentHeight;
+          practiceSession.style.height = '';
         }
       });
     }
+
+    // Focus auf Inputs: Tastatur-Klasse setzen + Input in Sicht scrollen
+    questionCard.addEventListener('focusin', (e) => {
+      if (!e.target.matches('input')) return;
+      document.body.classList.add('keyboard-open');
+      setTimeout(() => {
+        e.target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }, 400);
+    });
+
+    questionCard.addEventListener('focusout', (e) => {
+      if (!e.target.matches('input')) return;
+      setTimeout(() => {
+        if (!questionCard.querySelector('input:focus')) {
+          document.body.classList.remove('keyboard-open');
+          practiceSession.style.height = '';
+        }
+      }, 150);
+    });
   }
+
 
   // ==========================================================================
   // CONFIG & SETTINGS LOGIK

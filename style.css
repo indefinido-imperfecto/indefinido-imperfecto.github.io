@@ -2743,9 +2743,30 @@ td .person-number-badge {
     max-width: 100vw;
   }
 
-  /* Kompakter App-Container ohne seitliches Padding-Überlaufen */
+  /* App-Container: kein Padding (Header und Content haben eigenes Padding) */
   .app-container {
     padding: 0;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Inhalt: eigenes seitliches Padding, nie breiter als der Bildschirm */
+  .app-content {
+    padding: 12px 14px 24px 14px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  /* Karten nie breiter als ihr Container */
+  .glass-card,
+  .practice-menu,
+  .practice-sections-container,
+  .practice-category-card {
+    width: 100%;
+    box-sizing: border-box;
+    max-width: 100%;
   }
 
   /* Header: kompakt, ganze Breite */
@@ -2787,10 +2808,6 @@ td .person-number-badge {
     margin-bottom: 2px;
   }
 
-  /* Inhalt bekommt eigenes Padding */
-  .app-content {
-    padding: 12px 14px 24px 14px;
-  }
 }
 
 /* ==========================================================================

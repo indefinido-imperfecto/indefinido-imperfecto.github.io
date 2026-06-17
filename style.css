@@ -60,6 +60,10 @@ body {
   line-height: 1.6;
 }
 
+html {
+  overflow-x: hidden; /* verhindert seitliches Wischen global */
+}
+
 /* Deaktiviere standard-fokus-stile für schönere custom-stile */
 *:focus-visible {
   outline: 2px solid var(--primary);
@@ -114,6 +118,8 @@ body {
   flex-direction: column;
   min-height: 100vh;
   max-width: 1200px;
+  width: 100%;        /* nie breiter als der Bildschirm */
+  box-sizing: border-box;
   margin: 0 auto;
   padding: 24px 16px;
 }
@@ -184,6 +190,8 @@ body {
 /* Navigation Tabs */
 .nav-tabs {
   display: flex;
+  width: 100%;       /* füllt immer die volle Breite */
+  box-sizing: border-box;
   background: rgba(255, 255, 255, 0.03);
   padding: 6px;
   border-radius: 100px;
@@ -193,13 +201,14 @@ body {
 }
 
 .tab-btn {
+  flex: 1;           /* jeder Button nimmt gleich viel Platz */
   background: transparent;
   border: none;
   color: var(--text-muted);
   font-family: var(--font-family);
   font-size: 0.95rem;
   font-weight: 600;
-  padding: 10px 24px;
+  padding: 10px 16px;
   cursor: pointer;
   border-radius: 100px;
   transition: var(--transition-fast);
@@ -2722,6 +2731,66 @@ td .person-number-badge {
   text-align: center;
   margin-top: -8px;
   margin-bottom: 24px;
+}
+
+/* ==========================================================================
+   MOBILE DESIGN – Allgemeines App-Layout (max-width: 600px)
+   ========================================================================== */
+@media (max-width: 600px) {
+  /* Kein horizontales Wischen */
+  body, .app-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  /* Kompakter App-Container ohne seitliches Padding-Überlaufen */
+  .app-container {
+    padding: 0;
+  }
+
+  /* Header: kompakt, ganze Breite */
+  .app-header {
+    margin: 0;
+    padding: 10px 14px 6px 14px;
+    border-radius: 0;
+    gap: 8px;
+  }
+
+  /* Logo: Icon + Cloud-Badge nebeneinander, minimalistisch */
+  .logo {
+    gap: 10px;
+  }
+
+  .logo-icon {
+    font-size: 1.6rem;
+  }
+
+  /* Nav-Tabs: ganze Breite, gleichmäßig aufgeteilt */
+  .nav-tabs {
+    width: 100%;
+    padding: 5px;
+    border-radius: 12px; /* auf Mobile eckiger, wirkt mehr wie App-Tabs */
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 9px 4px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    text-align: center;
+    border-radius: 8px;
+  }
+
+  .tab-btn i {
+    display: block;          /* Icon über Text */
+    font-size: 1rem;
+    margin-bottom: 2px;
+  }
+
+  /* Inhalt bekommt eigenes Padding */
+  .app-content {
+    padding: 12px 14px 24px 14px;
+  }
 }
 
 /* ==========================================================================

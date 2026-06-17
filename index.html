@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spanisch Past Tenses Trainer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Hintergrund-Effekte -->
+  <div class="bg-gradient"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo">
+        <i class="fa-solid fa-graduation-cap logo-icon"></i>
+        <h1>¡Tiempo Pasado!</h1>
+        <span class="badge">Trainer</span>
+        <div id="cloud-status-badge" class="cloud-status-badge offline" title="Offline-Modus (Lokal)">
+          <i class="fa-solid fa-cloud-slash"></i>
+          <span class="status-text">Lokal</span>
+        </div>
+      </div>
+      
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="practice">
+          <i class="fa-solid fa-play"></i> Üben
+        </button>
+        <button class="tab-btn" data-tab="cheatsheet">
+          <i class="fa-solid fa-book-open"></i> Spickzettel
+        </button>
+        <button class="tab-btn" data-tab="progress">
+          <i class="fa-solid fa-fire"></i> Fortschritt
+        </button>
+      </nav>
+    </header>
+
+    <!-- Hauptinhalt -->
+    <main class="app-content">
+
+      <!-- ================= TAB: ÜBEN ================= -->
+      <section id="tab-practice" class="tab-pane active">
+        
+          <!-- Übungs-Auswahl (Startbildschirm) -->
+        <div id="practice-menu" class="glass-card fade-in">
+          <h2>Wähle deinen Übungsmodus</h2>
+          <p class="subtitle">Trainiere deine Spanischkenntnisse spielerisch und effektiv.</p>
+
+          <!-- Ausklappbare Übungseinstellungen -->
+          <div class="practice-settings-collapsible">
+            <button type="button" id="btn-toggle-practice-settings" class="btn-settings-toggle">
+              <i class="fa-solid fa-sliders"></i> Übung anpassen <i class="fa-solid fa-chevron-down toggle-arrow"></i>
+            </button>
+            
+            <div id="practice-settings-content" class="practice-settings-content hidden">
+              <form id="settings-form" class="settings-form">
+                <!-- Zeitformen -->
+                <div class="settings-group">
+                  <h3><i class="fa-solid fa-clock"></i> 1. Zu übende Zeitformen</h3>
+                  <div class="checkbox-group">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" name="tense" value="indefinido" checked>
+                      <span class="checkmark"></span>
+                      <span class="label-text">Pretérito Indefinido</span>
+                    </label>
+                    <label class="custom-checkbox">
+                      <input type="checkbox" name="tense" value="imperfecto" checked>
+                      <span class="checkmark"></span>
+                      <span class="label-text">Pretérito Imperfecto</span>
+                    </label>
+                  </div>
+                  <p class="muted-note"><i class="fa-solid fa-circle-info"></i> Wenn beide ausgewählt sind, vergleichen die Kontextübungen beide Zeiten direkt miteinander.</p>
+                </div>
+
+                <!-- Verb-Kategorien -->
+                <div class="settings-group">
+                  <h3><i class="fa-solid fa-list-check"></i> 2. Verb-Typen einbeziehen</h3>
+                  <div class="checkbox-group flex-column">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" name="verbType" value="regular" checked>
+                      <span class="checkmark"></span>
+                      <span class="label-text"><strong>Regelmäßige Verben</strong> (z.B. <em>hablar, comer, vivir</em>)</span>
+                    </label>
+                    <label class="custom-checkbox">
+                      <input type="checkbox" name="verbType" value="spelling" checked>
+                      <span class="checkmark"></span>
+                      <span class="label-text"><strong>Rechtschreib-Besonderheiten</strong> (Verben auf <em>-car, -gar, -zar</em> wie <em>buscar, llegar, empezar</em>)</span>
+                    </label>
+                    <label class="custom-checkbox">
+                      <input type="checkbox" name="verbType" value="irregular" id="checkbox-irregular" checked>
+                      <span class="checkmark"></span>
+                      <span class="label-text"><strong>Unregelmäßige Verben</strong> (nachfolgend nach Tiers filterbar)</span>
+                    </label>
+
+                    <!-- Unter-Optionen für Tiers -->
+                    <div class="settings-sub-group" id="tier-checkboxes-container">
+                      <label class="custom-checkbox sub-checkbox">
+                        <input type="checkbox" name="verbTier" value="1" checked>
+                        <span class="checkmark"></span>
+                        <span class="label-text"><strong>Tier 1: Die Dauerbrenner</strong> (z.B. <em>ser, ir, estar, tener, hacer...</em>)</span>
+                      </label>
+                      <label class="custom-checkbox sub-checkbox">
+                        <input type="checkbox" name="verbTier" value="2" checked>
+                        <span class="checkmark"></span>
+                        <span class="label-text"><strong>Tier 2: Wichtige unregelmäßige</strong> (z.B. <em>saber, haber, ver, dar, traer...</em>)</span>
+                      </label>
+                      <label class="custom-checkbox sub-checkbox">
+                        <input type="checkbox" name="verbTier" value="3" checked>
+                        <span class="checkmark"></span>
+                        <span class="label-text"><strong>Tier 3: Stamm- & Schreibwechsel</strong> (z.B. <em>pedir, dormir, leer, reír, seguir...</em>)</span>
+                      </label>
+                      <label class="custom-checkbox sub-checkbox">
+                        <input type="checkbox" name="verbTier" value="4" checked>
+                        <span class="checkmark"></span>
+                        <span class="label-text"><strong>Tier 4: Vorsilben & Ableitungen</strong> (z.B. <em>proponer, deshacer, traducir...</em>)</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Rundenlänge -->
+                <div class="settings-group">
+                  <h3><i class="fa-solid fa-hourglass-half"></i> 3. Länge einer Übungseinheit</h3>
+                  <div class="radio-group">
+                    <label class="custom-radio">
+                      <input type="radio" name="sessionLength" value="10" checked>
+                      <span class="radiomark"></span>
+                      <span class="label-text">10 Fragen</span>
+                    </label>
+                    <label class="custom-radio">
+                      <input type="radio" name="sessionLength" value="20">
+                      <span class="radiomark"></span>
+                      <span class="label-text">20 Fragen</span>
+                    </label>
+                    <label class="custom-radio">
+                      <input type="radio" name="sessionLength" value="infinite">
+                      <span class="radiomark"></span>
+                      <span class="label-text">Endlos-Modus</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Anzeige-Optionen -->
+                <div class="settings-group" style="border-bottom: none; padding-bottom: 0;">
+                  <h3><i class="fa-solid fa-eye-slash"></i> 4. Anzeige-Optionen</h3>
+                  <div class="checkbox-group">
+                    <label class="custom-checkbox">
+                      <input type="checkbox" name="hideTranslations" value="true">
+                      <span class="checkmark"></span>
+                      <span class="label-text">Deutsche Übersetzungen ausblenden (für Vokabel-Herausforderung)</span>
+                    </label>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Validierungs-Warnung -->
+          <div id="settings-validation-warning" class="settings-warning-banner hidden">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="settings-validation-message">Bitte wähle mindestens eine Zeitform aus!</span>
+          </div>
+
+          <div class="practice-sections-container">
+            <!-- Sektion 1: Formen trainieren (Konjugation) -->
+            <div class="practice-category-card">
+              <div class="category-header">
+                <i class="fa-solid fa-shapes"></i>
+                <div>
+                  <h3>Formen trainieren (Konjugation)</h3>
+                  <p>Lerne die reinen Verbformen ohne Satzkontext.</p>
+                </div>
+              </div>
+              <div class="category-submodes">
+                <button class="submode-btn" data-mode="recognize">
+                  <div class="submode-info">
+                    <span class="submode-title"><i class="fa-solid fa-magnifying-glass"></i> Formen erkennen</span>
+                    <span class="submode-desc">Bestimme die richtige Zeitform für ein konjugiertes Verb (Multiple-Choice).</span>
+                  </div>
+                  <div class="submode-action"><i class="fa-solid fa-play"></i> Starten</div>
+                </button>
+                <button class="submode-btn" data-mode="conjugate">
+                  <div class="submode-info">
+                    <span class="submode-title"><i class="fa-solid fa-pen-nib"></i> Formen bilden</span>
+                    <span class="submode-desc">Schreibe die konjugierte Form für ein Verb und eine Person selbst auf.</span>
+                  </div>
+                  <div class="submode-action"><i class="fa-solid fa-play"></i> Starten</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Sektion 2: Anwendung trainieren (Satzkontext) -->
+            <div class="practice-category-card">
+              <div class="category-header">
+                <i class="fa-solid fa-paragraph"></i>
+                <div>
+                  <h3>Anwendung trainieren (Satzkontext)</h3>
+                  <p>Lerne, wann du Indefinido oder Imperfecto im Satz anwendest.</p>
+                </div>
+              </div>
+              <div class="category-submodes">
+                <button class="submode-btn" data-mode="select-tense">
+                  <div class="submode-info">
+                    <span class="submode-title"><i class="fa-solid fa-toggle-on"></i> Zeitform wählen</span>
+                    <span class="submode-desc">Wähle in Lückentexten die richtige konjugierte Form per Klick aus.</span>
+                  </div>
+                  <div class="submode-action"><i class="fa-solid fa-play"></i> Starten</div>
+                </button>
+                <button class="submode-btn" data-mode="context">
+                  <div class="submode-info">
+                    <span class="submode-title"><i class="fa-solid fa-keyboard"></i> Verb einsetzen</span>
+                    <span class="submode-desc">Löse Lückentexte und tippe das konjugierte Verb im Satz selbst ein.</span>
+                  </div>
+                  <div class="submode-action"><i class="fa-solid fa-play"></i> Starten</div>
+                </button>
+                <button class="submode-btn" data-mode="signals">
+                  <div class="submode-info">
+                    <span class="submode-title"><i class="fa-solid fa-hourglass-half"></i> Signalwörter zuordnen</span>
+                    <span class="submode-desc">Ordne zeitliche Marker (z. B. <em>ayer</em> oder <em>siempre</em>) der richtigen Zeitform zu.</span>
+                  </div>
+                  <div class="submode-action"><i class="fa-solid fa-play"></i> Starten</div>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-status">
+            <span><i class="fa-solid fa-check-double text-success"></i> Aktuelle Auswahl:</span>
+            <span id="active-tenses-preview" class="badge-pill">Indefinido & Imperfecto</span>
+            <span id="active-verbs-preview" class="badge-pill">Alle Verben</span>
+          </div>
+        </div>
+
+        <!-- Aktiver Übungsbereich -->
+        <div id="practice-session" class="glass-card hidden">
+          <!-- Session Header: Fortschritt & Score -->
+          <div class="session-header">
+            <button id="btn-exit-session" class="btn-icon" title="Übung abbrechen">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="progress-container">
+              <div class="progress-bar">
+                <div id="session-progress" class="progress-fill" style="width: 0%;"></div>
+              </div>
+              <span id="session-progress-text">Frage 0/10</span>
+            </div>
+            <div class="session-score">
+              <i class="fa-solid fa-star text-warning"></i>
+              <span id="session-score-text">0 / 0</span>
+            </div>
+          </div>
+
+          <!-- Die Fragen-Karte -->
+          <div id="question-card" class="question-card-container">
+            <!-- Inhalt wird dynamisch gerendert -->
+          </div>
+
+          <!-- Feedback Bereich (Richtig/Falsch) -->
+          <div id="feedback-widget" class="feedback-widget hidden">
+            <div class="feedback-status">
+              <div class="feedback-icon-container">
+                <i id="feedback-icon" class="fa-solid"></i>
+              </div>
+              <div class="feedback-text">
+                <h4 id="feedback-headline">Richtig!</h4>
+                <p id="feedback-message">Sehr gut gemacht.</p>
+              </div>
+            </div>
+            <!-- Erklärungs-Akkordeon für Kontext -->
+            <div id="feedback-explanation-box" class="explanation-box hidden">
+              <h5>Didaktischer Hinweis:</h5>
+              <p id="feedback-explanation"></p>
+              <div class="sentence-translation">
+                <i class="fa-solid fa-language"></i> <span id="feedback-translation"></span>
+              </div>
+            </div>
+            <button id="btn-next-question" class="btn-primary">Weiter <i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+
+        <!-- Zusammenfassungs-Bildschirm -->
+        <div id="session-summary" class="glass-card hidden fade-in">
+          <div class="summary-success-graphic">
+            <div class="circle-chart-container">
+              <svg viewBox="0 0 36 36" class="circular-chart">
+                <path class="circle-bg"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path id="summary-chart-fill" class="circle"
+                  stroke-dasharray="0, 100"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <text x="18" y="20.35" id="summary-percentage" class="percentage">0%</text>
+              </svg>
+            </div>
+          </div>
+
+          <h2 id="summary-headline">Gut gemacht!</h2>
+          <p id="summary-subtext" class="subtitle">Du hast die Übungseinheit abgeschlossen.</p>
+
+          <div class="stats-panel">
+            <div class="stat-box">
+              <span class="stat-num text-success" id="stat-correct">0</span>
+              <span class="stat-label">Richtig</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num text-danger" id="stat-wrong">0</span>
+              <span class="stat-label">Falsch</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num text-info" id="stat-accuracy">0%</span>
+              <span class="stat-label">Genauigkeit</span>
+            </div>
+          </div>
+
+          <!-- Fehlerliste -->
+          <div id="wrong-answers-list-container" class="hidden">
+            <h3>Diesen Verben solltest du noch einmal Aufmerksamkeit schenken:</h3>
+            <div id="wrong-answers-list" class="wrong-answers-list">
+              <!-- Liste falscher Antworten wird dynamisch gerendert -->
+            </div>
+          </div>
+
+          <div class="summary-actions">
+            <button id="btn-restart-session" class="btn-primary">
+              <i class="fa-solid fa-rotate-left"></i> Modus wiederholen
+            </button>
+            <button id="btn-review-errors" class="btn-secondary hidden">
+              <i class="fa-solid fa-triangle-exclamation"></i> Nur Fehler wiederholen
+            </button>
+            <button id="btn-to-menu" class="btn-tertiary">
+              <i class="fa-solid fa-house"></i> Hauptmenü
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB: SPICKZETTEL ================= -->
+      <section id="tab-cheatsheet" class="tab-pane">
+        
+        <!-- Grammatik Gegenüberstellung -->
+        <div class="glass-card">
+          <h2>Indefinido vs. Imperfecto: Wann wird was verwendet?</h2>
+          <p class="subtitle">Der Vergangenheits-Vergleich auf einen Blick.</p>
+          
+          <div class="grammar-compare-grid">
+            <div class="grammar-col indefinido-col">
+              <h3><i class="fa-solid fa-bolt"></i> Pretérito Indefinido</h3>
+              <p class="tense-descr">Für punktuelle, abgeschlossene Ereignisse in der Vergangenheit.</p>
+              
+              <div class="usage-list">
+                <div class="usage-item">
+                  <strong>Einmalige Handlungen:</strong>
+                  <span>Aktionen, die zu einem bestimmten Zeitpunkt stattfanden und vorbei sind.</span>
+                  <em class="example">Ayer fui al cine. (Gestern ging ich ins Kino.)</em>
+                </div>
+                <div class="usage-item">
+                  <strong>Neu eintretendes Ereignis:</strong>
+                  <span>Eine Aktion, die eine laufende Hintergrundhandlung unterbricht.</span>
+                  <em class="example">...cuando de repente sonó el teléfono. (...als plötzlich das Telefon klingelte.)</em>
+                </div>
+                <div class="usage-item">
+                  <strong>Kettenhandlung:</strong>
+                  <span>Aufeinanderfolgende Aktionen.</span>
+                  <em class="example">Me levanté, me duché y salí. (Ich stand auf, duschte und ging raus.)</em>
+                </div>
+              </div>
+
+              <div class="signal-box">
+                <h4><i class="fa-solid fa-key"></i> Signalwörter (Klick zum Übersetzen)</h4>
+                <div class="signal-tags">
+                  <span class="signal-tag" data-spanish="ayer" data-german="gestern">ayer</span>
+                  <span class="signal-tag" data-spanish="anteayer" data-german="vorgestern">anteayer</span>
+                  <span class="signal-tag" data-spanish="anoche" data-german="gestern Abend">anoche</span>
+                  <span class="signal-tag" data-spanish="el otro día" data-german="neulich / vor kurzem">el otro día</span>
+                  <span class="signal-tag" data-spanish="el lunes pasado" data-german="letzten Montag">el lunes pasado</span>
+                  <span class="signal-tag" data-spanish="la semana pasada" data-german="letzte Woche">la semana pasada</span>
+                  <span class="signal-tag" data-spanish="el mes pasado" data-german="letzten Monat">el mes pasado</span>
+                  <span class="signal-tag" data-spanish="el año pasado" data-german="letztes Jahr">el año pasado</span>
+                  <span class="signal-tag" data-spanish="el verano pasado" data-german="letzten Sommer">el verano pasado</span>
+                  <span class="signal-tag" data-spanish="hace dos días" data-german="vor zwei Tagen">hace dos días</span>
+                  <span class="signal-tag" data-spanish="hace un año" data-german="vor einem Jahr">hace un año</span>
+                  <span class="signal-tag" data-spanish="hace un rato" data-german="vor kurzem">hace un rato</span>
+                  <span class="signal-tag" data-spanish="de repente" data-german="plötzlich">de repente</span>
+                  <span class="signal-tag" data-spanish="de pronto" data-german="plötzlich">de pronto</span>
+                  <span class="signal-tag" data-spanish="un día" data-german="eines Tages">un día</span>
+                  <span class="signal-tag" data-spanish="una vez" data-german="einmal">una vez</span>
+                  <span class="signal-tag" data-spanish="en ese momento" data-german="in diesem Moment">en ese momento</span>
+                  <span class="signal-tag" data-spanish="en aquel momento" data-german="in jenem Moment">en aquel momento</span>
+                  <span class="signal-tag" data-spanish="inmediatamente" data-german="sofort">inmediatamente</span>
+                  <span class="signal-tag" data-spanish="de inmediato" data-german="sofort">de inmediato</span>
+                  <span class="signal-tag" data-spanish="enseguida" data-german="sofort">enseguida</span>
+                  <span class="signal-tag" data-spanish="al final" data-german="am Ende">al final</span>
+                  <span class="signal-tag" data-spanish="al instante" data-german="sofort">al instante</span>
+                  <span class="signal-tag" data-spanish="por fin" data-german="schließlich / endlich">por fin</span>
+                  <span class="signal-tag" data-spanish="finalmente" data-german="schließlich">finalmente</span>
+                  <span class="signal-tag" data-spanish="aquel día" data-german="jener Tag">aquel día</span>
+                  <span class="signal-tag" data-spanish="aquella tarde" data-german="jener Nachmittag">aquella tarde</span>
+                  <span class="signal-tag" data-spanish="esa mañana" data-german="dieser Morgen">esa mañana</span>
+                  <span class="signal-tag" data-spanish="en 2018" data-german="im Jahr 2018">en 2018</span>
+                  <span class="signal-tag" data-spanish="por último" data-german="zuletzt / schließlich">por último</span>
+                  <span class="signal-tag" data-spanish="entonces" data-german="da / dann / damals">entonces</span>
+                  <span class="signal-tag" data-spanish="durante tres años" data-german="drei Jahre lang">durante tres años</span>
+                </div>
+                <div class="signal-translation-detail-box" id="indefinido-translation-box">
+                  <i class="fa-solid fa-circle-info"></i> <span>Klicke auf ein Signalwort für Übersetzung & Erklärung...</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grammar-col imperfecto-col">
+              <h3><i class="fa-solid fa-clock"></i> Pretérito Imperfecto</h3>
+              <p class="tense-descr">Für Beschreibungen, Gewohnheiten und Zustände in der Vergangenheit.</p>
+              
+              <div class="usage-list">
+                <div class="usage-item">
+                  <strong>Regelmäßige Gewohnheiten:</strong>
+                  <span>Wiederholte Handlungen („früher immer“).</span>
+                  <em class="example">Siempre jugábamos en el parque. (Wir spielten immer im Park.)</em>
+                </div>
+                <div class="usage-item">
+                  <strong>Hintergrundhandlung / Zustand:</strong>
+                  <span>Beschreibungen von Personen, Orten, Wetter oder Gefühlen.</span>
+                  <em class="example">Hacía buen tiempo y la casa era grande. (Das Wetter war gut und das Haus war groß.)</em>
+                </div>
+                <div class="usage-item">
+                  <strong>Gleichzeitigkeit:</strong>
+                  <span>Parallel verlaufende Handlungen (während...).</span>
+                  <em class="example">Mientras yo estudiaba, mi hermano dormía. (Während ich lernte, schlief mein Bruder.)</em>
+                </div>
+              </div>
+
+              <div class="signal-box">
+                <h4><i class="fa-solid fa-key"></i> Signalwörter (Klick zum Übersetzen)</h4>
+                <div class="signal-tags">
+                  <span class="signal-tag" data-spanish="siempre" data-german="immer">siempre</span>
+                  <span class="signal-tag" data-spanish="casi siempre" data-german="fast immer">casi siempre</span>
+                  <span class="signal-tag" data-spanish="antes" data-german="früher">antes</span>
+                  <span class="signal-tag" data-spanish="normalmente" data-german="normalerweise">normalmente</span>
+                  <span class="signal-tag" data-spanish="generalmente" data-german="meistens / allgemein">generalmente</span>
+                  <span class="signal-tag" data-spanish="habitualmente" data-german="gewöhnlich / normalerweise">habitualmente</span>
+                  <span class="signal-tag" data-spanish="a menudo" data-german="oft">a menudo</span>
+                  <span class="signal-tag" data-spanish="frecuentemente" data-german="häufig">frecuentemente</span>
+                  <span class="signal-tag" data-spanish="con frecuencia" data-german="häufig">con frecuencia</span>
+                  <span class="signal-tag" data-spanish="de vez en cuando" data-german="ab und zu / von Zeit zu Zeit">de vez en cuando</span>
+                  <span class="signal-tag" data-spanish="muchas veces" data-german="oft / viele Male">muchas veces</span>
+                  <span class="signal-tag" data-spanish="todos los días" data-german="jeden Tag">todos los días</span>
+                  <span class="signal-tag" data-spanish="todos los lunes" data-german="jeden Montag">todos los lunes</span>
+                  <span class="signal-tag" data-spanish="cada día" data-german="jeden Tag">cada día</span>
+                  <span class="signal-tag" data-spanish="cada semana" data-german="jede Woche">cada semana</span>
+                  <span class="signal-tag" data-spanish="cada año" data-german="jedes Jahr">cada año</span>
+                  <span class="signal-tag" data-spanish="cada vez que" data-german="jedes Mal wenn">cada vez que</span>
+                  <span class="signal-tag" data-spanish="mientras" data-german="während">mientras</span>
+                  <span class="signal-tag" data-spanish="cuando era niño" data-german="als ich ein Kind war">cuando era niño</span>
+                  <span class="signal-tag" data-spanish="de niño" data-german="als Kind">de niño</span>
+                  <span class="signal-tag" data-spanish="en aquella época" data-german="damals / in jener Zeit">en aquella época</span>
+                  <span class="signal-tag" data-spanish="en aquel entonces" data-german="damals">en aquel entonces</span>
+                  <span class="signal-tag" data-spanish="en aquellos tiempos" data-german="damals / in jenen Zeiten">en aquellos tiempos</span>
+                  <span class="signal-tag" data-spanish="en esos tiempos" data-german="in jenen Zeiten">en esos tiempos</span>
+                  <span class="signal-tag" data-spanish="antiguamente" data-german="früher / ehemals">antiguamente</span>
+                  <span class="signal-tag" data-spanish="por aquel entonces" data-german="damals">por aquel entonces</span>
+                  <span class="signal-tag" data-spanish="a veces" data-german="manchmal">a veces</span>
+                  <span class="signal-tag" data-spanish="los lunes" data-german="montags">los lunes</span>
+                </div>
+                <div class="signal-translation-detail-box" id="imperfecto-translation-box">
+                  <i class="fa-solid fa-circle-info"></i> <span>Klicke auf ein Signalwort für Übersetzung & Erklärung...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regelmäßige Endungen -->
+        <div class="glass-card">
+          <h2>Regelmäßige Konjugationsendungen</h2>
+
+          <!-- Tense Toggle Control for Mobile view of table -->
+          <div class="table-segmented-control">
+            <button type="button" class="segmented-btn active" data-tense="indefinido">Pretérito Indefinido</button>
+            <button type="button" class="segmented-btn" data-tense="imperfecto">Pretérito Imperfecto</button>
+          </div>
+
+          <div class="table-container" data-active-tense="indefinido">
+            <table class="grammar-table">
+              <thead>
+                <tr>
+                  <th>Person</th>
+                  <th colspan="2" class="header-indefinido col-indefinido">Pretérito Indefinido</th>
+                  <th colspan="2" class="header-imperfecto col-imperfecto">Pretérito Imperfecto</th>
+                </tr>
+                <tr>
+                  <th></th>
+                  <th class="col-indefinido">-ar Verben</th>
+                  <th class="col-indefinido">-er / -ir Verben</th>
+                  <th class="col-imperfecto">-ar Verben</th>
+                  <th class="col-imperfecto">-er / -ir Verben</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="person-number-badge">1</span> <strong>yo</strong></td>
+                  <td class="col-indefinido">-é <span class="muted">(hablé)</span></td>
+                  <td class="col-indefinido">-í <span class="muted">(comí / viví)</span></td>
+                  <td class="col-imperfecto">-aba <span class="muted">(hablaba)</span></td>
+                  <td class="col-imperfecto">-ía <span class="muted">(comía / vivía)</span></td>
+                </tr>
+                <tr>
+                  <td><span class="person-number-badge">2</span> <strong>tú</strong></td>
+                  <td class="col-indefinido">-aste</td>
+                  <td class="col-indefinido">-iste</td>
+                  <td class="col-imperfecto">-abas</td>
+                  <td class="col-imperfecto">-ías</td>
+                </tr>
+                <tr>
+                  <td><span class="person-number-badge">3</span> <strong>él/ella/usted</strong></td>
+                  <td class="col-indefinido">-ó <span class="muted">(habló)</span></td>
+                  <td class="col-indefinido">-ió <span class="muted">(comió / vivió)</span></td>
+                  <td class="col-imperfecto">-aba</td>
+                  <td class="col-imperfecto">-ía</td>
+                </tr>
+                <tr>
+                  <td><span class="person-number-badge">4</span> <strong>nosotros/-as</strong></td>
+                  <td class="col-indefinido">-amos</td>
+                  <td class="col-indefinido">-imos</td>
+                  <td class="col-imperfecto">-ábamos <span class="muted">(mit Akzent)</span></td>
+                  <td class="col-imperfecto">-íamos</td>
+                </tr>
+                <tr>
+                  <td><span class="person-number-badge">5</span> <strong>vosotros/-as</strong></td>
+                  <td class="col-indefinido">-asteis</td>
+                  <td class="col-indefinido">-isteis</td>
+                  <td class="col-imperfecto">-abais</td>
+                  <td class="col-imperfecto">-íais</td>
+                </tr>
+                <tr>
+                  <td><span class="person-number-badge">6</span> <strong>ellos/ellas/Uds.</strong></td>
+                  <td class="col-indefinido">-aron</td>
+                  <td class="col-indefinido">-ieron</td>
+                  <td class="col-imperfecto">-aban</td>
+                  <td class="col-imperfecto">-ían</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Interaktives Verblexikon (Suche in 100+ Verben) -->
+        <div class="glass-card">
+          <h2>Interaktive Verben-Bibliothek</h2>
+          <p class="subtitle">Suche nach einem beliebigen Verb aus unserer Datenbank, um alle konjugierten Formen im Indefinido & Imperfecto zu sehen.</p>
+          
+          <div class="verb-search-container">
+            <div class="search-input-wrapper">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="verb-search-input" placeholder="Nach Infinitiv oder Übersetzung suchen... (z. B. 'saber' oder 'wissen')">
+            </div>
+            <div class="verb-filter-badges">
+              <button class="filter-badge active" data-filter="all">Alle</button>
+              <button class="filter-badge" data-filter="regular">Nur regelmäßige</button>
+              <button class="filter-badge" data-filter="irregular">Nur unregelmäßige</button>
+            </div>
+          </div>
+
+          <div class="verb-results-grid" id="verb-search-results">
+            <!-- Wird dynamisch durch JavaScript befüllt -->
+          </div>
+        </div>
+
+      </section>
+      <!-- ================= TAB: FORTSCHRITT ================= -->
+      <section id="tab-progress" class="tab-pane">
+        <!-- Cloud-Synchronisation & Profil -->
+        <div class="glass-card" style="margin-bottom: 24px;">
+          <h2><i class="fa-solid fa-cloud"></i> Cloud-Synchronisation & Rangliste</h2>
+          <p class="subtitle">Melde dich an, um deinen Fortschritt in der Cloud zu sichern und dich mit anderen auf der Rangliste zu messen.</p>
+          
+          <!-- Firebase unkonfiguriert Hinweis -->
+          <div id="firebase-unconfigured-note" class="firebase-note warning-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <div>
+              <strong>Firebase nicht verknüpft</strong>
+              <p>Trage deine Firebase-Zugangsdaten in der Datei <code>firebase-config.js</code> ein, um Cloud-Backups, Anmeldungen und die globale Rangliste freizuschalten.</p>
+            </div>
+          </div>
+
+          <!-- Firebase konfiguriert, aber nicht angemeldet -->
+          <div id="firebase-logged-out-box" class="firebase-auth-box hidden">
+            <div class="auth-form-grid">
+              <div class="form-field">
+                <label for="auth-username">Benutzername</label>
+                <input type="text" id="auth-username" placeholder="z. B. SpanischKönig" autocomplete="username">
+              </div>
+              <div class="form-field">
+                <label for="auth-pin">4-stellige PIN (Passwort)</label>
+                <input type="password" id="auth-pin" placeholder="••••" maxlength="6" autocomplete="current-password">
+              </div>
+            </div>
+            <div id="auth-error-message" class="auth-error hidden"></div>
+            <div class="auth-actions">
+              <button id="btn-login" class="btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Einloggen</button>
+              <button id="btn-register" class="btn-secondary"><i class="fa-solid fa-user-plus"></i> Konto erstellen</button>
+            </div>
+          </div>
+
+          <!-- Angemeldet Zustand -->
+          <div id="firebase-logged-in-box" class="firebase-auth-box hidden">
+            <div class="user-profile-display">
+              <div class="profile-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+              <div class="profile-info">
+                <h3 id="logged-in-username">Benutzername</h3>
+                <p id="logged-in-status-text">Dein Fortschritt wird automatisch in der Cloud gesichert.</p>
+              </div>
+            </div>
+            <div class="auth-actions" style="margin-top: 24px;">
+              <button id="btn-logout" class="btn-secondary"><i class="fa-solid fa-right-from-bracket"></i> Abmelden</button>
+              <button id="btn-sync-now" class="btn-tertiary"><i class="fa-solid fa-rotate"></i> Jetzt synchronisieren</button>
+              <span id="sync-success-toast" class="save-toast hidden">Erfolgreich synchronisiert!</span>
+            </div>
+          </div>
+        </div>
+          <!-- Dashboard Karten -->
+          <div class="stats-dashboard-grid">
+            <!-- Lernserie -->
+            <div class="glass-card stat-dashboard-card streak-card">
+              <div class="card-icon-large"><i class="fa-solid fa-fire text-danger"></i></div>
+              <div class="card-info">
+                <span class="card-info-label">Tägliche Lernserie</span>
+                <h2 id="progress-streak">0 Tage</h2>
+                <p id="progress-streak-sub">Übe jeden Tag, um deine Serie aufrechtzuerhalten!</p>
+              </div>
+            </div>
+
+            <!-- Level & XP -->
+            <div class="glass-card stat-dashboard-card level-card">
+              <div class="card-icon-large"><i class="fa-solid fa-trophy text-warning"></i></div>
+              <div class="card-info">
+                <span class="card-info-label">Lern-Erfahrung</span>
+                <h2 id="progress-level">Level 1: Novize</h2>
+                <span id="progress-xp-text" class="xp-text">0 XP Gesamt</span>
+                <div class="progress-bar" style="margin-top: 10px;">
+                  <div id="progress-xp-fill" class="progress-fill" style="width: 0%;"></div>
+                </div>
+                <p id="progress-xp-next" class="progress-xp-next-sub" style="margin-top: 6px; font-size: 0.8rem; color: var(--text-muted);">Noch 100 XP bis Level 2</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Globale Rangliste -->
+          <div class="glass-card" style="margin-top: 24px;">
+            <h2><i class="fa-solid fa-trophy text-warning"></i> Globale Rangliste</h2>
+            <p class="subtitle">Messe dich mit anderen Schülerinnen und Schülern.</p>
+            
+            <div id="leaderboard-unconfigured-note" class="firebase-note info-note">
+              <i class="fa-solid fa-cloud-slash"></i>
+              <div>
+                <strong>Rangliste nur im Online-Modus verfügbar</strong>
+                <p>Verbinde ein Firebase-Projekt in <code>firebase-config.js</code> und melde dich an, um deinen Platz auf der Rangliste zu sichern und andere Spieler zu sehen.</p>
+              </div>
+            </div>
+
+            <div id="leaderboard-container" class="leaderboard-container hidden">
+              <div class="leaderboard-header">
+                <span class="rank-col">Platz</span>
+                <span class="user-col">Name</span>
+                <span class="streak-col">Streak</span>
+                <span class="xp-col">XP</span>
+              </div>
+              <div id="leaderboard-list" class="leaderboard-list">
+                <div class="loading-spinner"><i class="fa-solid fa-circle-notch fa-spin"></i> Lade Rangliste...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fehlersammler / Baustellen -->
+          <div class="glass-card">
+            <h2>Deine aktuellen Baustellen (Fehlersammler)</h2>
+            <p class="subtitle">Hier siehst du, bei welchen Verben oder Signalwörtern du die meisten Fehler machst.</p>
+            
+            <div class="trouble-grid">
+              <!-- Schwache Verben -->
+              <div class="trouble-box">
+                <h3><i class="fa-solid fa-triangle-exclamation text-danger"></i> Problematische Verben</h3>
+                <p class="descr">Diese Verben hast du am häufigsten falsch konjugiert oder zugeordnet:</p>
+                <ul class="trouble-list" id="trouble-verbs-list">
+                  <li class="muted-note-item">Noch keine Fehler aufgezeichnet! Super Arbeit!</li>
+                </ul>
+              </div>
+
+              <!-- Schwache Signalwörter -->
+              <div class="trouble-box">
+                <h3><i class="fa-solid fa-circle-question text-warning"></i> Signalwort-Hürden</h3>
+                <p class="descr">Bei diesen Auslösern fällt dir die Wahl der richtigen Zeitform noch schwer:</p>
+                <ul class="trouble-list" id="trouble-signals-list">
+                  <li class="muted-note-item">Noch keine Fehler aufgezeichnet! Super Arbeit!</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Gezieltes Training -->
+            <div class="target-practice-action" id="target-practice-action-box" style="margin-top: 36px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.05);">
+              <div class="action-text">
+                <h4 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 4px;">Bereit für ein gezieltes Training?</h4>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">Starte eine Übungsrunde mit deinen persönlichen Problemzonen, um sie effektiv zu meistern.</p>
+              </div>
+              <button id="btn-practice-trouble" class="btn-primary" style="margin-top: 16px;" disabled>
+                <i class="fa-solid fa-dumbbell"></i> Schwachstellen trainieren
+              </button>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <p>&copy; 2026 Spanisch Past Tenses Trainer. Entwickelt für Schülerinnen und Schüler.</p>
+      </footer>
+    </div>
+
+  <!-- Javascript-Dateien -->
+  <script src="firebase-config.js"></script>
+  <script src="verbs-data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

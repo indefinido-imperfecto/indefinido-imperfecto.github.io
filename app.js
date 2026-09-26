@@ -516,6 +516,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
 
+  // Aktuell gültige Serie: Der gespeicherte Wert wird nur zurückgesetzt, wenn die Person die App
+  // wieder öffnet. Wer heute oder gestern nicht geübt hat, hat die Serie aber schon verloren.
+  function getEffectiveStreak(streak, lastPracticed) {
+    if (lastPracticed === getTodayDateString() || lastPracticed === getYesterdayDateString()) {
+      return Number(streak) || 0;
+    }
+    return 0;
+  }
+
   function updateStreak() {
     if (!stats.lastPracticed) return;
     const today = getTodayDateString();
@@ -632,7 +641,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderProgressTab() {
     // 1. Serie rendern
-    progressStreak.textContent = stats.streak === 1 ? "1 Tag" : `${stats.streak} Tage`;
+    // (auch lokal: die App kann über Mitternacht hinaus offen bleiben)
+    const currentStreak = getEffectiveStreak(stats.streak, stats.lastPracticed);
+    progressStreak.textContent = currentStreak === 1 ? "1 Tag" : `${currentStreak} Tage`;
     
     const streakSubText = document.getElementById("progress-streak-sub");
     if (stats.lastPracticed === getTodayDateString()) {
@@ -2734,7 +2745,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const userData = doc.data();
         const username = userData.username || doc.id;
         const xp = userData.xp || 0;
-        const streak = userData.streak || 0;
+        const streak = getEffectiveStreak(userData.streak, userData.lastPracticed);
         const isCurrent = currentUser && doc.id === currentUser.uid;
 
         const row = document.createElement("div");

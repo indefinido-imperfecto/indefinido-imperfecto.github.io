@@ -23,7 +23,7 @@ const REGULAR_VERBS = [
   { infinitive: "llamar", translation: "rufen / anrufen" },
   { infinitive: "mandar", translation: "schicken / senden" },
   { infinitive: "llevar", translation: "tragen / bringen" },
-  { infinitive: "usar", translation: "benutzten / gebrauchen" },
+  { infinitive: "usar", translation: "benutzen / gebrauchen" },
   { infinitive: "preparar", translation: "vorbereiten" },
   { infinitive: "esperar", translation: "warten / hoffen" },
   { infinitive: "necesitar", translation: "brauchen / benötigen" },
@@ -337,6 +337,7 @@ const IRREGULAR_VERBS = [
   },
   {
     infinitive: "preferir",
+    tier: 3,
     translation: "bevorzugen",
     tenses: {
       indefinido: { yo: "preferí", tu: "preferiste", el: "prefirió", nosotros: "preferimos", vosotros: "preferisteis", ellos: "prefirieron" },
@@ -799,14 +800,16 @@ const IRREGULAR_VERBS = [
   {
     infinitive: "huir",
     tier: 3,
+    // Ältere, weiterhin tolerierte Schreibweise (vor der RAE-Reform 2010)
+    alternatives: { indefinido: { yo: ["huí"] } },
     translation: "fliehen",
     tenses: {
           "indefinido": {
-                "yo": "huí",
-                "tu": "huíste",
+                "yo": "hui",
+                "tu": "huiste",
                 "el": "huyó",
-                "nosotros": "huímos",
-                "vosotros": "huísteis",
+                "nosotros": "huimos",
+                "vosotros": "huisteis",
                 "ellos": "huyeron"
           },
           "imperfecto": {
@@ -845,12 +848,13 @@ const IRREGULAR_VERBS = [
   {
     infinitive: "freír",
     tier: 3,
+    alternatives: { indefinido: { el: ["frió"] } },
     translation: "braten / frittieren",
     tenses: {
           "indefinido": {
                 "yo": "freí",
                 "tu": "freíste",
-                "el": "frió",
+                "el": "frio",
                 "nosotros": "freímos",
                 "vosotros": "freísteis",
                 "ellos": "frieron"
@@ -868,12 +872,13 @@ const IRREGULAR_VERBS = [
   {
     infinitive: "reír",
     tier: 3,
+    alternatives: { indefinido: { el: ["rió"] } },
     translation: "lachen",
     tenses: {
           "indefinido": {
                 "yo": "reí",
                 "tu": "reíste",
-                "el": "rió",
+                "el": "rio",
                 "nosotros": "reímos",
                 "vosotros": "reísteis",
                 "ellos": "rieron"
@@ -1300,12 +1305,12 @@ const CONTEXT_EXERCISES = [
     "explanation": "Ein punktuelles Lebensereignis (ein Kind bekommen/gebären) -> Indefinido."
   },
   {
-    "sentence": "La colonización española en América ___ (empezar) a mediados del siglo XV.",
+    "sentence": "La colonización española en América ___ (empezar) a finales del siglo XV.",
     "verb": "empezar",
     "person": "el",
     "correctTense": "indefinido",
     "correctAnswer": "empezó",
-    "translation": "Die spanische Kolonisation in Amerika begann Mitte des 15. Jahrhunderts.",
+    "translation": "Die spanische Kolonisation in Amerika begann Ende des 15. Jahrhunderts.",
     "explanation": "Der Startpunkt eines historischen Prozesses ist ein abgeschlossenes Ereignis -> Indefinido."
   },
   {
@@ -1399,12 +1404,12 @@ const CONTEXT_EXERCISES = [
     "explanation": "Abgeschlossener historischer Prozess -> Indefinido."
   },
   {
-    "sentence": "Cuando en 1804, Napoleón ___ (invadir) España.",
+    "sentence": "En 1808, Napoleón ___ (invadir) España.",
     "verb": "invadir",
     "person": "el",
     "correctTense": "indefinido",
     "correctAnswer": "invadió",
-    "translation": "Als Napoleon 1804 in Spanien einfiel.",
+    "translation": "1808 fiel Napoleon in Spanien ein.",
     "explanation": "Eine konkrete Jahreszahl grenzt die historische Invasion ein -> Indefinido."
   },
   {
@@ -1949,12 +1954,12 @@ const CONTEXT_EXERCISES = [
     explanation: "'Un día' (eines Tages) markiert ein einmaliges, abgeschlossenes Ereignis -> Indefinido."
   },
   {
-    sentence: "En ese momento, yo ___ enfermo y cansado. (Zustandsbeschreibung)",
+    sentence: "Cuando llegó el médico, yo ___ enfermo y cansado. (Zustandsbeschreibung)",
     verb: "estar",
     person: "yo",
     correctTense: "imperfecto",
     correctAnswer: "estaba",
-    translation: "In diesem Moment war ich krank und müde.",
+    translation: "Als der Arzt kam, war ich krank und müde.",
     explanation: "Hier wird ein körperlicher und mentaler Zustand in der Vergangenheit beschrieben -> Imperfecto."
   },
   {
@@ -1994,7 +1999,7 @@ const CONTEXT_EXERCISES = [
     explanation: "'Anoche' (gestern Abend) bezeichnet einen abgeschlossenen Zeitpunkt in der Vergangenheit -> Indefinido."
   },
   {
-    sentence: "Antes nosotros ___ en un pueblo muy pequeno.",
+    sentence: "Antes nosotros ___ en un pueblo muy pequeño.",
     verb: "vivir",
     person: "nosotros",
     correctTense: "imperfecto",
@@ -2129,13 +2134,13 @@ const CONTEXT_EXERCISES = [
     explanation: "'Un día' (eines Tages) zeigt ein plötzliches Ereignis in der Vergangenheit -> Indefinido."
   },
   {
-    sentence: "Yo ___ a las diez ayer porque estaba muy cansado. (einschlafen)",
+    sentence: "Ayer yo me ___ a las diez porque estaba muy cansado. (einschlafen)",
     verb: "dormir",
     person: "yo",
     correctTense: "indefinido",
     correctAnswer: "dormí",
     translation: "Ich schlief gestern um zehn Uhr ein, weil ich sehr müde war.",
-    explanation: "Gestern ('ayer') um eine bestimmte Uhrzeit schlafen gegangen -> Indefinido."
+    explanation: "Gestern ('ayer') um eine bestimmte Uhrzeit eingeschlafen (dormirse) -> Indefinido."
   },
   {
     sentence: "Normalmente mi familia ___ las vacaciones en Italia.",
@@ -2352,15 +2357,6 @@ const CONTEXT_EXERCISES = [
     correctAnswer: "entró",
     translation: "Während die Menschen schliefen, brach der Vulkan aus.",
     explanation: "Der Ausbruch des Vulkans unterbricht die schlafende Bevölkerung im Hintergrund -> Indefinido."
-  },
-  {
-    sentence: "Siempre ___ sol en esa playa maravillosa.",
-    verb: "hacer",
-    person: "el",
-    correctTense: "imperfecto",
-    correctAnswer: "hacía",
-    translation: "Es war immer sonnig an diesem wunderbaren Strand.",
-    explanation: "'Siempre' (immer) sowie eine Wetterbeschreibung in der Vergangenheit verlangen das Imperfecto."
   }
 ];
 
@@ -2483,7 +2479,8 @@ function getVerbsDatabase() {
       regular: false,
       spellingChange: false,
       tier: v.tier,
-      tenses: v.tenses
+      tenses: v.tenses,
+      alternatives: v.alternatives || null // Weitere akzeptierte Schreibweisen: { tense: { person: [..] } }
     });
   });
 

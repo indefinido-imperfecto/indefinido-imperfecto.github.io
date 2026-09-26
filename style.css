@@ -2747,6 +2747,17 @@ td .person-number-badge {
   color: var(--text-muted);
 }
 
+/* Modus braucht beide Zeitformen, aber nur eine ist gewählt */
+.submode-btn.needs-both-tenses {
+  opacity: 0.55;
+}
+
+.submode-note {
+  font-size: 0.78rem;
+  color: var(--warning, #fbbf24);
+  margin-top: 4px;
+}
+
 .submode-action {
   font-size: 0.9rem;
   font-weight: 700;

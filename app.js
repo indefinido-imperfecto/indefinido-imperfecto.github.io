@@ -25,17 +25,25 @@ document.addEventListener("DOMContentLoaded", () => {
     score: 0,
     attempts: 0,
     wrongAnswers: [], // Gesammelte Fehler
-    isAnswered: false
+    isAnswered: false,
+    isInfinite: false // Endlos-Modus (wird beim Start der Runde festgelegt)
   };
 
   // Fortschritts-Statistiken (Persistent in localStorage)
-  let stats = {
-    xp: 0,
-    streak: 0,
-    lastPracticed: "", // YYYY-MM-DD
-    verbErrors: {},    // { verbInfinitive: count }
-    signalErrors: {}   // { signalWord: count }
-  };
+  function createDefaultStats() {
+    return {
+      xp: 0,
+      streak: 0,
+      lastPracticed: "", // YYYY-MM-DD
+      verbErrors: {},    // { verbInfinitive: count }
+      signalErrors: {},  // { signalWord: count }
+      ownerUid: null     // UID des Kontos, dem diese lokalen Daten gehören (null = anonym, nie angemeldet)
+    };
+  }
+  let stats = createDefaultStats();
+
+  // Nur diese Felder werden zwischen Cloud und lokalem Speicher ausgetauscht
+  const SYNCED_STAT_FIELDS = ["xp", "streak", "lastPracticed", "verbErrors", "signalErrors"];
 
   // Signalwörter-Datenbank für den Zuordnungs-Modus
   const SIGNALS_DB = [
@@ -66,7 +74,16 @@ document.addEventListener("DOMContentLoaded", () => {
     { word: "aquel día", translation: "jener Tag", tense: "indefinido", explanation: "Ein bestimmter Tag in der Vergangenheit." },
     { word: "aquella tarde", translation: "jener Nachmittag", tense: "indefinido", explanation: "Ein bestimmter Nachmittag in der Vergangenheit." },
     { word: "esa mañana", translation: "dieser Morgen", tense: "indefinido", explanation: "Ein bestimmter Morgen in der Vergangenheit." },
+    { word: "hace un año", translation: "vor einem Jahr", tense: "indefinido", explanation: "Ein zeitlich genau bestimmter Zeitpunkt." },
+    { word: "en 2018", translation: "im Jahr 2018", tense: "indefinido", explanation: "Eine konkrete Jahreszahl grenzt das Ereignis zeitlich ein." },
+    { word: "por último", translation: "zuletzt/schließlich", tense: "indefinido", explanation: "Der letzte Schritt einer Abfolge von Handlungen." },
+    { word: "entonces", translation: "dann/daraufhin", tense: "indefinido", explanation: "Leitet die nächste Handlung in einer Erzählkette ein." },
+    { word: "durante tres años", translation: "drei Jahre lang", tense: "indefinido", explanation: "Ein klar begrenzter, abgeschlossener Zeitraum." },
     { word: "siempre", translation: "immer", tense: "imperfecto", explanation: "Eine dauerhafte Gewohnheit oder wiederholte Handlung." },
+    { word: "casi siempre", translation: "fast immer", tense: "imperfecto", explanation: "Eine fast immer wiederkehrende Gewohnheit." },
+    { word: "frecuentemente", translation: "häufig", tense: "imperfecto", explanation: "Eine wiederkehrende Handlung." },
+    { word: "en aquellos tiempos", translation: "damals/in jenen Zeiten", tense: "imperfecto", explanation: "Beschreibt Lebensumstände in der Vergangenheit." },
+    { word: "los lunes", translation: "montags", tense: "imperfecto", explanation: "Eine regelmäßige Gewohnheit an bestimmten Wochentagen." },
     { word: "antes", translation: "früher", tense: "imperfecto", explanation: "Beschreibt Lebensumstände oder Zustände in der Vergangenheit." },
     { word: "normalmente", translation: "normalerweise", tense: "imperfecto", explanation: "Eine Gewohnheit oder regelmäßige Handlung." },
     { word: "generalmente", translation: "meistens/allgemein", tense: "imperfecto", explanation: "Eine gewohnheitsmäßige, allgemeine Handlung." },
@@ -325,6 +342,34 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Diese Modi vergleichen Indefinido und Imperfecto – mit nur einer Zeitform wäre die Antwort immer gleich
+  const MODES_NEEDING_BOTH_TENSES = ["recognize", "select-tense", "signals"];
+
+  function updateTenseDependentModes() {
+    const singleTense = config.tenses.length < 2;
+    document.querySelectorAll(".submode-btn").forEach(card => {
+      if (!MODES_NEEDING_BOTH_TENSES.includes(card.getAttribute("data-mode"))) return;
+
+      card.classList.toggle("disabled", singleTense);
+      card.classList.toggle("needs-both-tenses", singleTense);
+      if (singleTense) {
+        card.setAttribute("disabled", "true");
+      } else {
+        card.removeAttribute("disabled");
+      }
+
+      let note = card.querySelector(".submode-note");
+      if (singleTense && !note) {
+        note = document.createElement("span");
+        note.className = "submode-note";
+        note.innerHTML = `<i class="fa-solid fa-circle-info"></i> Nur verfügbar, wenn beide Zeitformen ausgewählt sind.`;
+        card.querySelector(".submode-info").appendChild(note);
+      } else if (!singleTense && note) {
+        note.remove();
+      }
+    });
+  }
+
   function saveConfig(e, showToast = false) {
     if (e && e.preventDefault) e.preventDefault();
     
@@ -384,6 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("past_tenses_config", JSON.stringify(config));
     
     updateMenuPreviews();
+    updateTenseDependentModes();
 
     // Erfolgs-Toast anzeigen
     if (showToast && settingsSaveSuccess) {
@@ -436,18 +482,22 @@ document.addEventListener("DOMContentLoaded", () => {
   async function saveStats() {
     localStorage.setItem("past_tenses_stats", JSON.stringify(stats));
     
-    // Cloud-Sync falls angemeldet und Firebase aktiv
-    if (firebaseActive && currentUser && window.firebaseAuthAPI) {
+    // Cloud-Sync falls angemeldet und Firebase aktiv.
+    // Nur Daten hochladen, die nachweislich diesem Konto gehören (siehe onUserLoggedIn),
+    // sonst könnten lokale Daten einer anderen Person im Konto landen.
+    if (firebaseActive && currentUser && window.firebaseAuthAPI && stats.ownerUid === currentUser.uid) {
       try {
         const { doc, setDoc } = window.firebaseAuthAPI;
         const userDocRef = doc(db, "users", currentUser.uid);
-        await setDoc(userDocRef, {
+        const cloudStats = {
           xp: stats.xp,
           streak: stats.streak,
           lastPracticed: stats.lastPracticed,
           verbErrors: stats.verbErrors || {},
           signalErrors: stats.signalErrors || {}
-        }, { merge: true });
+        };
+        if (currentUsername) cloudStats.username = currentUsername;
+        await setDoc(userDocRef, cloudStats, { merge: true });
         console.log("[Firebase] Statistiken erfolgreich in der Cloud gesichert!");
       } catch (err) {
         console.error("[Firebase] Fehler beim Sichern der Statistiken in der Cloud:", err);
@@ -473,11 +523,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (today === last) return; // Heute bereits geübt
     
-    // Berechne Abstand in Tagen
-    const lastDate = new Date(last.replace(/-/g, "/"));
-    const todayDate = new Date(today.replace(/-/g, "/"));
-    const diffTime = Math.abs(todayDate - lastDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Berechne Abstand in Kalendertagen (in UTC, damit Sommer-/Winterzeit keinen 23h/25h-Tag erzeugt)
+    const toUtcDay = (dateStr) => {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      return Date.UTC(y, m - 1, d);
+    };
+    const diffDays = Math.round(Math.abs(toUtcDay(today) - toUtcDay(last)) / (1000 * 60 * 60 * 24));
     
     if (diffDays > 1) {
       stats.streak = 0; // Serie gerissen
@@ -557,18 +608,24 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function detectSignalWord(sentence) {
-    const allSignals = [
-      "ayer", "anteayer", "anoche", "el lunes pasado", "la semana pasada", "el mes pasado", "el año pasado", 
-      "hace dos días", "hace un año", "de repente", "de pronto", "un día", "una vez", "en 2018", "por fin", 
-      "por último", "entonces", "durante drei stunden", "siempre", "casi siempre", "antes", "normalmente", 
-      "a menudo", "todos los días", "cada año", "cada semana", "mientras", "frecuentemente", "generalmente", 
-      "muchas veces", "a veces", "de vez en cuando", "en aquella época", "en aquellos tiempos", "los lunes", 
-      "por aquel entonces"
-    ];
-    const lower = sentence.toLowerCase();
-    for (const sig of allSignals) {
-      if (lower.includes(sig)) return sig;
+  // Signalwörter nach Länge sortiert: "por aquel entonces" muss vor "entonces" geprüft werden,
+  // "casi siempre" vor "siempre" usw.
+  const SIGNALS_BY_LENGTH = [...SIGNALS_DB].sort((a, b) => b.word.length - a.word.length);
+
+  function escapeRegExp(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  // Ermittelt das Signalwort, das in einer Kontextübung die richtige Zeitform auslöst.
+  // - nur ganze Wörter ("antes" soll nicht in "restaurantes" treffen)
+  // - nur Signalwörter, die zur Lösung passen: "antes de fin de año" oder "mientras la gente
+  //   dormía, el volcán entró…" enthalten zwar Imperfecto-Wörter, die Lücke fordert aber Indefinido.
+  function detectSignalWord(exercise) {
+    const lower = exercise.sentence.toLowerCase();
+    for (const sig of SIGNALS_BY_LENGTH) {
+      if (exercise.correctTense && sig.tense !== exercise.correctTense) continue;
+      const pattern = new RegExp(`(^|[^\\p{L}\\d])${escapeRegExp(sig.word)}(?=$|[^\\p{L}\\d])`, "u");
+      if (pattern.test(lower)) return sig.word;
     }
     return null;
   }
@@ -609,7 +666,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const li = document.createElement("li");
         li.innerHTML = `
           <span><span class="item-name">${verbInfinitive}</span><span style="color: var(--text-muted); font-size:0.85rem">${trans}</span></span>
-          <span class="error-count">${count} ${count === 1 ? 'Fehler' : 'Fehler'}</span>
+          <span class="error-count">${count} Fehler</span>
         `;
         troubleVerbsList.appendChild(li);
       });
@@ -626,29 +683,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sortedSignals.length === 0) {
       troubleSignalsList.innerHTML = `<li class="muted-note-item">Noch keine Fehler aufgezeichnet! Super Arbeit!</li>`;
     } else {
-      // Erkennen, zu welchem Tense das Signal gehört
-      const signalTenseMap = {
-        // Indefinido
-        "ayer": "Indefinido", "anteayer": "Indefinido", "anoche": "Indefinido", "el lunes pasado": "Indefinido", 
-        "la semana pasada": "Indefinido", "el mes pasado": "Indefinido", "el año pasado": "Indefinido",
-        "hace dos días": "Indefinido", "hace un año": "Indefinido", "de repente": "Indefinido", 
-        "de pronto": "Indefinido", "un día": "Indefinido", "una vez": "Indefinido", "en 2018": "Indefinido", 
-        "por fin": "Indefinido", "por último": "Indefinido", "entonces": "Indefinido", "durante tres horas": "Indefinido",
-        // Imperfecto
-        "siempre": "Imperfecto", "casi siempre": "Imperfecto", "antes": "Imperfecto", "normalmente": "Imperfecto", 
-        "a menudo": "Imperfecto", "todos los días": "Imperfecto", "cada jahr": "Imperfecto", "cada woche": "Imperfecto", 
-        "mientras": "Imperfecto", "frecuentemente": "Imperfecto", "generalmente": "Imperfecto", 
-        "muchas veces": "Imperfecto", "a veces": "Imperfecto", "de vez en cuando": "Imperfecto", 
-        "en aquella época": "Imperfecto", "en aquellos tiempos": "Imperfecto", "los lunes": "Imperfecto", 
-        "por aquel entonces": "Imperfecto"
-      };
-
       sortedSignals.forEach(([sig, count]) => {
-        const tense = signalTenseMap[sig] || "unbekannt";
+        // Zeitform des Signals aus der zentralen Signalwort-Datenbank
+        const signalEntry = SIGNALS_DB.find(s => s.word === sig);
+        const tense = signalEntry
+          ? (signalEntry.tense === "indefinido" ? "Indefinido" : "Imperfecto")
+          : "unbekannt";
         const li = document.createElement("li");
         li.innerHTML = `
           <span><span class="item-name">${sig}</span> <span style="font-size:0.8rem; background:rgba(255,255,255,0.05); padding:2px 6px; border-radius:4px; color:var(--text-muted)">fordert ${tense}</span></span>
-          <span class="error-count">${count} ${count === 1 ? 'Fehler' : 'Fehler'}</span>
+          <span class="error-count">${count} Fehler</span>
         `;
         troubleSignalsList.appendChild(li);
       });
@@ -686,9 +730,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const limit = 10;
 
     // 1. Versuchen Kontext-Übungen zu finden, die diese Signalwörter oder diese Verben nutzen
+    //    (nur in den gewählten Zeitformen)
     const matchedContext = window.CONTEXT_EXERCISES.filter(ex => {
-      const dbVerb = window.VERBS_DATABASE.find(v => v.infinitive === ex.verb);
-      const detectedSig = detectSignalWord(ex.sentence);
+      if (!config.tenses.includes(ex.correctTense)) return false;
+      const detectedSig = detectSignalWord(ex);
       
       const verbMatches = problemVerbsList.includes(ex.verb);
       const signalMatches = detectedSig && problemSignalsList.includes(detectedSig);
@@ -705,7 +750,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 2. Formen-Bilden-Fragen generieren für die schwachen Verben
     const pronouns = ["yo", "tu", "el", "nosotros", "vosotros", "ellos"];
-    const tenses = ["indefinido", "imperfecto"];
+    const tenses = config.tenses;
 
     problemVerbsList.forEach(verbInf => {
       const verbData = window.VERBS_DATABASE.find(v => v.infinitive === verbInf);
@@ -725,17 +770,38 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    // 3. Signalwort-Fragen für die schwachen Signalwörter
+    //    (nur sinnvoll, wenn beide Zeitformen zur Auswahl stehen)
+    const signalQuestionWords = config.tenses.length > 1 ? problemSignalsList : [];
+    signalQuestionWords.forEach(word => {
+      const sig = SIGNALS_DB.find(s => s.word === word);
+      if (sig) {
+        targetQuestions.push({
+          type: "signal",
+          word: sig.word,
+          translation: sig.translation,
+          tense: sig.tense,
+          correctTense: sig.tense,
+          correctAnswer: sig.tense,
+          explanation: sig.explanation
+        });
+      }
+    });
+
     shuffleArray(targetQuestions);
 
     const finalQuestions = targetQuestions.slice(0, limit);
 
-    // Falls wir weniger als 10 Fragen zusammenhaben, mit zufälligen unregelmäßigen Verben auffüllen
+    // Falls wir weniger als 10 Fragen zusammenhaben, mit zufälligen Verben aus den Einstellungen auffüllen
+    // (bevorzugt unregelmäßige; falls keine gewählt sind, alle erlaubten Verben)
     if (finalQuestions.length < limit) {
       const needed = limit - finalQuestions.length;
-      const irregularVerbs = window.VERBS_DATABASE.filter(v => !v.regular);
+      const allowedVerbs = window.VERBS_DATABASE.filter(isVerbAllowedByConfig);
+      const allowedIrregular = allowedVerbs.filter(v => !v.regular);
+      const fillVerbs = allowedIrregular.length > 0 ? allowedIrregular : allowedVerbs;
       
-      for (let i = 0; i < needed; i++) {
-        const verbData = irregularVerbs[Math.floor(Math.random() * irregularVerbs.length)];
+      for (let i = 0; i < needed && fillVerbs.length > 0; i++) {
+        const verbData = fillVerbs[Math.floor(Math.random() * fillVerbs.length)];
         const randPronoun = pronouns[Math.floor(Math.random() * pronouns.length)];
         const randTense = tenses[Math.floor(Math.random() * tenses.length)];
         
@@ -763,6 +829,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Mixed-Mode Rendering-Vorkehrung: session.mode anpassen, falls nötig
     session.mode = "mixed"; 
+    session.isInfinite = false; // Schwachstellen-Runden haben immer eine feste Länge
 
     // UI-Wechsel
     practiceMenu.classList.add("hidden");
@@ -866,17 +933,23 @@ document.addEventListener("DOMContentLoaded", () => {
   // FRAGEN-GENERATOR (Sitzung-Logik)
   // ==========================================================================
   
+  // Entspricht das Verb den gewählten Verb-Typen und Tiers?
+  function isVerbAllowedByConfig(verb) {
+    if (verb.regular && !verb.spellingChange) return config.verbTypes.includes("regular");
+    if (verb.regular && verb.spellingChange) return config.verbTypes.includes("spelling");
+    return config.verbTypes.includes("irregular") && config.tiers.includes(verb.tier);
+  }
+
   function startSession(mode) {
     session.isActive = true;
     session.mode = mode;
+    session.isInfinite = config.sessionLength === "infinite";
     session.currentIndex = 0;
     session.score = 0;
     session.attempts = 0;
     session.wrongAnswers = [];
     session.isAnswered = false;
-    
-    if (appHeader) appHeader.classList.add("hidden");
-    
+
     // Fragen generieren
     generateQuestions();
 
@@ -886,7 +959,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // UI-Wechsel
+    // UI-Wechsel (Header erst verstecken, wenn die Runde wirklich startet)
+    if (appHeader) appHeader.classList.add("hidden");
     practiceMenu.classList.add("hidden");
     sessionSummary.classList.add("hidden");
     practiceSession.classList.remove("hidden");
@@ -900,14 +974,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const limit = config.sessionLength === "infinite" ? 99999 : config.sessionLength;
 
     // Verben holen, die dem eingestellten Typ entsprechen
-    const availableVerbs = window.VERBS_DATABASE.filter(verb => {
-      if (verb.regular && !verb.spellingChange) return config.verbTypes.includes("regular");
-      if (verb.regular && verb.spellingChange) return config.verbTypes.includes("spelling");
-      if (!verb.regular) {
-        return config.verbTypes.includes("irregular") && config.tiers.includes(verb.tier);
-      }
-      return false;
-    });
+    const availableVerbs = window.VERBS_DATABASE.filter(isVerbAllowedByConfig);
 
     if (session.mode === "context" || session.mode === "select-tense") {
       // Kontextfragen filtern
@@ -917,14 +984,7 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Muss dem Verbtyp entsprechen
         const dbVerb = window.VERBS_DATABASE.find(v => v.infinitive === ex.verb);
-        if (dbVerb) {
-          if (dbVerb.regular && !dbVerb.spellingChange) return config.verbTypes.includes("regular");
-          if (dbVerb.regular && dbVerb.spellingChange) return config.verbTypes.includes("spelling");
-          if (!dbVerb.regular) {
-            return config.verbTypes.includes("irregular") && config.tiers.includes(dbVerb.tier);
-          }
-        }
-        return true;
+        return dbVerb ? isVerbAllowedByConfig(dbVerb) : true;
       });
 
       // Mischen
@@ -1020,6 +1080,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let renderMode = session.mode;
     if (renderMode === "mixed") {
       renderMode = q.type || (q.sentence ? "context" : "conjugate");
+      if (renderMode === "signal") renderMode = "signals";
     }
 
     // Body-Themen zurücksetzen für farblichen Gesamt-Mood
@@ -1046,10 +1107,10 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateProgressUI() {
     const total = session.questions.length;
     const current = session.currentIndex + 1;
-    const progressPercent = config.sessionLength === "infinite" ? 100 : (session.currentIndex / total) * 100;
+    const progressPercent = session.isInfinite ? 100 : (session.currentIndex / total) * 100;
 
     sessionProgress.style.width = `${progressPercent}%`;
-    sessionProgressText.textContent = config.sessionLength === "infinite" 
+    sessionProgressText.textContent = session.isInfinite 
       ? `Frage ${current} (Endlos)`
       : `Frage ${current} von ${total}`;
     
@@ -1651,32 +1712,77 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+    // Leere Eingaben werden nicht gewertet (kein versehentliches Überspringen, kein XP-Farmen)
+    function submitAnswer() {
+      if (session.isAnswered) return;
+      if (input.value.trim() === "") {
+        input.classList.remove("shake");
+        void input.offsetWidth; // Animation neu starten
+        input.classList.add("shake");
+        input.focus();
+        return;
+      }
+      checkAnswer(input.value);
+    }
+
     // Enter-Taste fängt ab
     input.addEventListener("keypress", (e) => {
-      if (e.key === "Enter" && !session.isAnswered) {
-        checkAnswer(input.value);
+      if (e.key === "Enter") {
+        submitAnswer();
       }
     });
 
     // Klick auf Senden
-    submitBtn.addEventListener("click", () => {
-      if (!session.isAnswered) {
-        checkAnswer(input.value);
-      }
-    });
+    submitBtn.addEventListener("click", submitAnswer);
   }
 
   // ==========================================================================
   // ANTWORT-VALIDIERUNG & AKZENT-TOLERANZ
   // ==========================================================================
   
+  // Text für die Ausgabe per innerHTML entschärfen (Nutzereingaben!)
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, ch => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[ch]));
+  }
+
   function stripAccents(str) {
     return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  }
+
+  // Entspricht die gespeicherte Form eines Verbs der regelmäßigen Bildung?
+  function isRegularlyFormed(verbInfo, tense, person) {
+    const endingType = verbInfo.infinitive.slice(-2);
+    if (!["ar", "er", "ir"].includes(endingType)) return false; // z. B. "oír", "reír"
+    const regularForms = generateConjugations(verbInfo.infinitive, endingType);
+    return regularForms[tense][person] === verbInfo.tenses[tense][person];
+  }
+
+  // Alle als richtig gewerteten Antworten einer Frage: Hauptform + Varianten aus verbs-data.js
+  function getAcceptedAnswers(q) {
+    const answers = [q.correctAnswer];
+    // Bei "Formen erkennen" und "Signalw\u00f6rter" ist die Antwort eine Zeitform, keine Verbform
+    if (q.type === "recognize" || q.type === "signal" || !q.verb) return answers;
+
+    const tense = q.correctTense || q.tense;
+    const mainVerb = q.verb.split(" ")[0];
+    const rest = q.verb.substring(mainVerb.length);
+    const verbObj = window.VERBS_DATABASE.find(v => v.infinitive === mainVerb);
+    const alternatives = verbObj?.alternatives?.[tense]?.[getCanonicalPersonKey(q.person)] || [];
+    alternatives.forEach(alt => answers.push(alt + rest));
+    return answers;
   }
 
   function checkAnswer(userAnswer) {
     session.isAnswered = true;
     session.attempts++;
+
+    // Lernserie zählt ab der ersten beantworteten Frage des Tages –
+    // auch wenn die Runde später abgebrochen wird oder (Endlos-Modus) nie endet
+    if (stats.lastPracticed !== getTodayDateString()) {
+      recordPracticeSession();
+    }
 
     const q = session.questions[session.currentIndex];
 
@@ -1692,12 +1798,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (keyboard) keyboard.classList.add("hidden");
     if (submitBtn) submitBtn.classList.add("hidden");
     
-    // Normalisierte Antworten
+    // Normalisierte Antworten (inkl. weiterhin gültiger Schreibvarianten, z. B. "rió" neben "rio")
     const cleanUser = userAnswer.toLowerCase().trim();
-    const cleanCorrect = q.correctAnswer.toLowerCase().trim();
+    const acceptedAnswers = getAcceptedAnswers(q).map(a => a.toLowerCase().trim());
 
-    const isMatch = cleanUser === cleanCorrect;
-    const isCloseMatch = stripAccents(cleanUser) === stripAccents(cleanCorrect);
+    const isMatch = acceptedAnswers.includes(cleanUser);
+    const isCloseMatch = acceptedAnswers.some(a => stripAccents(a) === stripAccents(cleanUser));
 
     let isCorrect = false;
     let feedbackMsg = "";
@@ -1723,14 +1829,13 @@ document.addEventListener("DOMContentLoaded", () => {
       session.score++;
       feedbackMsg = "Genial! Das ist vollkommen richtig.";
       
-      // XP gutschreiben
+      // XP gutschreiben (gespeichert wird unten zusammen mit dem Fehlersammler)
       stats.xp += 10;
-      saveStats();
     } 
     else if (isCloseMatch) {
       // Akzentfehler (Ignorierter Akzent)
       isAccentError = true;
-      feedbackMsg = `Achtung auf Akzente! Richtig ist: <strong>${q.correctAnswer}</strong> (nicht <em>${userAnswer}</em>). Im Spanischen verändern Akzente oft die Zeitform oder Bedeutung!`;
+      feedbackMsg = `Achtung auf Akzente! Richtig ist: <strong>${q.correctAnswer}</strong> (nicht <em>${escapeHtml(userAnswer)}</em>). Im Spanischen verändern Akzente oft die Zeitform oder Bedeutung!`;
     } 
     else {
       // Komplett falsch
@@ -1743,24 +1848,32 @@ document.addEventListener("DOMContentLoaded", () => {
         question: q,
         userAnswer: userAnswer || "[Keine Antwort]",
         correctAnswer: q.correctAnswer,
-        tense: q.tense
+        tense: q.tense || q.correctTense // Kontextübungen haben nur correctTense
       });
-
-      // Baustellen-Tracker
-      if (q.verb) {
-        stats.verbErrors[q.verb] = (stats.verbErrors[q.verb] || 0) + 1;
-      }
-      if (q.sentence) {
-        const sig = detectSignalWord(q.sentence);
-        if (sig) {
-          stats.signalErrors[sig] = (stats.signalErrors[sig] || 0) + 1;
-        }
-      }
-      if (q.type === "signal") {
-        stats.signalErrors[q.word] = (stats.signalErrors[q.word] || 0) + 1;
-      }
-      saveStats();
     }
+
+    // Baustellen-Tracker (Fehlersammler): Fehler erhöhen den Zähler, richtige Antworten
+    // bauen ihn wieder ab – so verschwinden gemeisterte Verben/Signalwörter aus den Baustellen
+    const errorDelta = isCorrect ? -1 : 1;
+    const adjustErrorCount = (bucket, key) => {
+      const next = (bucket[key] || 0) + errorDelta;
+      if (next > 0) {
+        bucket[key] = next;
+      } else {
+        delete bucket[key];
+      }
+    };
+    if (q.verb) {
+      adjustErrorCount(stats.verbErrors, q.verb);
+    }
+    if (q.sentence) {
+      const sig = detectSignalWord(q);
+      if (sig) adjustErrorCount(stats.signalErrors, sig);
+    }
+    if (q.type === "signal") {
+      adjustErrorCount(stats.signalErrors, q.word);
+    }
+    saveStats();
 
     // Feedback-Widget konfigurieren und anzeigen
     feedbackWidget.classList.remove("hidden");
@@ -1787,10 +1900,26 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (session.mode === "conjugate" || q.type === "conjugate") {
       // Erklärung für Bildung einblenden
       feedbackExplanationBox.classList.remove("hidden");
-      const regularInfo = window.VERBS_DATABASE.find(v => v.infinitive === q.verb)?.regular;
-      const explanationText = regularInfo 
-        ? `"${q.verb}" ist ein <strong>regelmäßiges</strong> Verb auf -${q.verb.slice(-2)}. Seine Endung im ${TENSE_LABELS[q.tense]} für "${q.person}" ist regelmäßig.`
-        : `"${q.verb}" ist ein <strong>unregelmäßiges</strong> Verb im ${TENSE_LABELS[q.tense]}. Diese Formen müssen gelernt werden.`;
+      const verbInfo = window.VERBS_DATABASE.find(v => v.infinitive === q.verb);
+      const personLabel = PRONOUN_LABELS[q.person] ? PRONOUN_LABELS[q.person].pronoun : q.person;
+      const SPELLING_CHANGE_HINTS = {
+        car: "c → qu (busqué), damit das [k] erhalten bleibt",
+        gar: "g → gu (llegué), damit das harte [g] erhalten bleibt",
+        zar: "z → c (empecé), weil vor e im Spanischen c statt z geschrieben wird"
+      };
+      let explanationText;
+      if (verbInfo && verbInfo.spellingChange && q.tense === "indefinido" && q.person === "yo") {
+        const hint = SPELLING_CHANGE_HINTS[q.verb.slice(-3)] || "eine Schreibänderung";
+        explanationText = `"${q.verb}" ist in der Aussprache regelmäßig, ändert aber in der yo-Form des ${TENSE_LABELS[q.tense]} die <strong>Schreibung</strong>: ${hint}.`;
+      } else if (verbInfo && verbInfo.regular) {
+        explanationText = `"${q.verb}" ist ein <strong>regelmäßiges</strong> Verb auf -${q.verb.slice(-2)}. Seine Endung im ${TENSE_LABELS[q.tense]} für "${personLabel}" ist regelmäßig.`;
+      } else if (verbInfo && isRegularlyFormed(verbInfo, q.tense, q.person)) {
+        // Viele unregelmäßige Verben sind nur in einzelnen Formen unregelmäßig
+        // (z. B. im Imperfecto sind nur ser, ir und ver unregelmäßig)
+        explanationText = `"${q.verb}" ist zwar ein unregelmäßiges Verb, aber diese Form im ${TENSE_LABELS[q.tense]} für "${personLabel}" wird <strong>regelmäßig</strong> gebildet.`;
+      } else {
+        explanationText = `"${q.verb}" ist ein <strong>unregelmäßiges</strong> Verb im ${TENSE_LABELS[q.tense]}. Diese Formen müssen gelernt werden.`;
+      }
       feedbackExplanation.innerHTML = explanationText;
       feedbackTranslation.textContent = `Übersetzung des Verbs: "${q.verb}" = "${q.translation}"`;
     } else {
@@ -1830,8 +1959,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const wrong = total - correct;
     const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
 
-    // XP gutschreiben für den Rundenabschluss (Fehlersammler / Streak-Trigger)
-    stats.xp += 50;
+    // XP-Bonus für den Rundenabschluss, abhängig von der Genauigkeit (max. 50)
+    const completionBonus = Math.round(50 * accuracy / 100);
+    stats.xp += completionBonus;
     recordPracticeSession();
     saveStats();
 
@@ -1859,7 +1989,7 @@ document.addEventListener("DOMContentLoaded", () => {
     statAccuracy.textContent = `${accuracy}%`;
 
     // XP berechnen und anzeigen
-    const xpEarned = (correct * 10) + 50;
+    const xpEarned = (correct * 10) + completionBonus;
     const statXpEarned = document.getElementById("stat-xp-earned");
     if (statXpEarned) {
       statXpEarned.textContent = `+${xpEarned}`;
@@ -1880,6 +2010,8 @@ document.addEventListener("DOMContentLoaded", () => {
           label = `<strong>${err.question.verb}</strong> (${PRONOUN_LABELS[err.question.person].pronoun})`;
         } else if (qType === "recognize") {
           label = `Bestimme <strong>${err.question.conjugatedForm}</strong>`;
+        } else if (qType === "signal") {
+          label = `Signalwort: <strong>${err.question.word}</strong>`;
         } else {
           label = `Satz: <em>"... ${err.question.verb} ..."</em>`;
         }
@@ -1890,7 +2022,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="tense-name">${TENSE_LABELS[err.tense]}</span>
           </div>
           <div class="answer-compare">
-            Deine Antwort: <span class="user-wrong">${err.userAnswer}</span>
+            Deine Antwort: <span class="user-wrong">${escapeHtml(err.userAnswer)}</span>
             Korrekt: <span class="correct-right">${err.correctAnswer}</span>
           </div>
         `;
@@ -1940,6 +2072,7 @@ document.addEventListener("DOMContentLoaded", () => {
     session.wrongAnswers = [];
     session.questions = recoveryQuestions;
     session.isAnswered = false;
+    session.isInfinite = false; // Fehler-Wiederholung hat eine feste Länge
 
     sessionSummary.classList.add("hidden");
     practiceSession.classList.remove("hidden");
@@ -1994,18 +2127,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 3. Exit Session Knopf
     btnExitSession.addEventListener("click", () => {
-      if (confirm("Möchtest du diese Übungseinheit wirklich abbrechen? Dein Fortschritt geht verloren.")) {
+      // Im Endlos-Modus ist das der einzige Weg, eine Runde zu beenden -> Auswertung zeigen
+      if (session.isInfinite && session.attempts > 0) {
+        if (confirm("Möchtest du den Endlos-Modus beenden? Du siehst dann deine Auswertung.")) {
+          showSummary();
+        }
+        return;
+      }
+
+      if (confirm("Möchtest du diese Übungseinheit wirklich abbrechen? Die Runde wird nicht ausgewertet (bereits verdiente XP bleiben erhalten).")) {
         session.isActive = false;
         practiceSession.classList.add("hidden");
         practiceMenu.classList.remove("hidden");
         if (appHeader) appHeader.classList.remove("hidden");
         document.body.classList.remove("session-active");
+        document.body.classList.remove("theme-indefinido", "theme-imperfecto");
       }
     });
 
     // 4. Neustart Buttons am Ende
     btnRestartSession.addEventListener("click", () => {
-      startSession(session.mode);
+      // Schwachstellen-Runden ("mixed") haben einen eigenen Generator
+      if (session.mode === "mixed") {
+        startTroublePracticeSession();
+      } else {
+        startSession(session.mode);
+      }
     });
 
     btnReviewErrors.addEventListener("click", () => {
@@ -2160,6 +2307,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let auth = null;
   let currentUser = null;
   let firebaseActive = false;
+  // Benutzername in Originalschreibweise (aus Firestore oder aus einer laufenden Registrierung).
+  // Wird bei jedem Speichern mitgeschickt, damit das Profil nie ohne Namen in der Rangliste steht.
+  let currentUsername = null;
+  // Während einer Registrierung: der gewünschte Name (onAuthStateChanged feuert, bevor das Profil existiert)
+  let pendingRegistrationUsername = null;
 
   async function initFirebase() {
     if (!window.isFirebaseConfigured()) {
@@ -2173,8 +2325,8 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // ESM CDN Module dynamisch importieren
       const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js");
-      const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js");
-      const { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+      const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, deleteUser } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js");
+      const { getFirestore, doc, setDoc, getDoc, collection, query, orderBy, limit, getDocs, writeBatch, deleteDoc } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
 
       const app = initializeApp(window.FIREBASE_CONFIG);
       db = getFirestore(app);
@@ -2189,6 +2341,7 @@ document.addEventListener("DOMContentLoaded", () => {
         createUserWithEmailAndPassword,
         signOut,
         onAuthStateChanged,
+        deleteUser,
         doc,
         setDoc,
         getDoc,
@@ -2196,7 +2349,9 @@ document.addEventListener("DOMContentLoaded", () => {
         query,
         orderBy,
         limit,
-        getDocs
+        getDocs,
+        writeBatch,
+        deleteDoc
       };
 
       // Auf Auth-Status hören
@@ -2227,8 +2382,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cleanUser.length < 3 || cleanUser.length > 15) {
       return "Der Benutzername muss zwischen 3 und 15 Zeichen lang sein.";
     }
-    if (!/^[a-zA-Z0-9_äöüÄÖÜß]+$/.test(cleanUser)) {
-      return "Der Benutzername darf nur Buchstaben, Zahlen und Unterstriche enthalten.";
+    // Nur ASCII: der Name wird Teil einer E-Mail-Adresse (Firebase Auth lehnt Umlaute ab)
+    // und muss zu den Firestore-Regeln passen (firestore.rules)
+    if (!/^[a-zA-Z0-9_]+$/.test(cleanUser)) {
+      return "Der Benutzername darf nur Buchstaben ohne Umlaute (a-z), Zahlen und Unterstriche enthalten.";
     }
     if (!/^\d{6}$/.test(pin)) {
       return "Die PIN muss aus genau 6 Ziffern bestehen.";
@@ -2255,7 +2412,7 @@ document.addEventListener("DOMContentLoaded", () => {
     hideAuthError();
     const userField = document.getElementById("auth-username");
     const pinField = document.getElementById("auth-pin");
-    const username = userField.value;
+    const username = userField.value.trim();
     const pin = pinField.value;
 
     const validationError = validateAuthInput(username, pin);
@@ -2268,7 +2425,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       setAuthLoading(true);
-      const { doc, getDoc, setDoc, createUserWithEmailAndPassword } = window.firebaseAuthAPI;
+      const { doc, getDoc, writeBatch, deleteDoc, deleteUser, createUserWithEmailAndPassword } = window.firebaseAuthAPI;
       
       // 1. Prüfen, ob Benutzername bereits vergeben ist (in Firestore)
       const usernameLower = username.toLowerCase();
@@ -2282,20 +2439,47 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // 2. Registrieren bei Firebase Auth
+      //    (onUserLoggedIn läuft dabei bereits los und muss den gewünschten Namen kennen)
+      pendingRegistrationUsername = username;
       const email = `${usernameLower}@past-tenses.internal`;
       const userCredential = await createUserWithEmailAndPassword(auth, email, pin);
       const uid = userCredential.user.uid;
 
-      // 3. Benutzernamen reservieren und Profil anlegen
-      await setDoc(usernameDocRef, { uid: uid });
-      await setDoc(doc(db, "users", uid), {
-        username: username,
-        xp: stats.xp,
-        streak: stats.streak,
-        lastPracticed: stats.lastPracticed,
-        verbErrors: stats.verbErrors || {},
-        signalErrors: stats.signalErrors || {}
-      });
+      // Neues Konto startet nur mit anonymen (oder bereits eigenen) lokalen Daten
+      if (stats.ownerUid && stats.ownerUid !== uid) {
+        stats = createDefaultStats();
+      }
+      stats.ownerUid = uid;
+      localStorage.setItem("past_tenses_stats", JSON.stringify(stats));
+
+      // 3. Benutzernamen reservieren und Profil anlegen – atomar in einem Batch.
+      //    merge: onUserLoggedIn kann das Profil parallel schon angelegt haben.
+      currentUsername = username;
+      try {
+        const batch = writeBatch(db);
+        batch.set(usernameDocRef, { uid: uid });
+        batch.set(doc(db, "users", uid), {
+          username: username,
+          xp: stats.xp,
+          streak: stats.streak,
+          lastPracticed: stats.lastPracticed,
+          verbErrors: stats.verbErrors || {},
+          signalErrors: stats.signalErrors || {}
+        }, { merge: true });
+        await batch.commit();
+      } catch (profileErr) {
+        // Profil konnte nicht angelegt werden -> Auth-Konto zurückrollen, damit kein
+        // verwaistes Konto ohne reservierten Namen übrig bleibt. Lokale Daten bleiben erhalten.
+        stats.ownerUid = null;
+        localStorage.setItem("past_tenses_stats", JSON.stringify(stats));
+        try {
+          await deleteDoc(doc(db, "users", uid)); // evtl. parallel angelegtes Profil entfernen
+          await deleteUser(userCredential.user);
+        } catch (deleteErr) {
+          console.error("[Firebase] Konto konnte nicht zurückgerollt werden:", deleteErr);
+        }
+        throw profileErr;
+      }
 
       console.log(`[Firebase] Account für ${username} erfolgreich erstellt!`);
       userField.value = "";
@@ -2309,6 +2493,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       showAuthError(friendlyMsg);
     } finally {
+      pendingRegistrationUsername = null;
       setAuthLoading(false);
     }
   }
@@ -2394,14 +2579,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function onUserLoggedIn(user) {
-    const username = user.email.split("@")[0];
+    // Während einer Registrierung ist der Name in Originalschreibweise schon bekannt
+    currentUsername = pendingRegistrationUsername;
+    const username = currentUsername || user.email.split("@")[0];
     
     // UI Statusbadge aktualisieren
     const statusBadge = document.getElementById("cloud-status-badge");
     if (statusBadge) {
       statusBadge.className = "cloud-status-badge online";
-      statusBadge.innerHTML = `<i class="fa-solid fa-cloud"></i> <span class="status-text">${username}</span>`;
-      statusBadge.title = `Angemeldet als ${username}`;
+      setStatusBadgeUsername(statusBadge, username);
     }
 
     // Auth-Boxen umschalten
@@ -2419,29 +2605,44 @@ document.addEventListener("DOMContentLoaded", () => {
         
         // Casing aus Datenbank holen falls vorhanden
         if (cloudData.username) {
+          currentUsername = cloudData.username;
           document.getElementById("logged-in-username").textContent = cloudData.username;
           if (statusBadge) {
-            statusBadge.innerHTML = `<i class="fa-solid fa-cloud"></i> <span class="status-text">${cloudData.username}</span>`;
+            setStatusBadgeUsername(statusBadge, cloudData.username);
           }
         }
 
+        // Lokale Daten werden nur hochgeladen, wenn sie bereits diesem Konto gehören.
+        // Daten eines anderen Kontos oder anonyme Daten (z. B. von jemand anderem am
+        // geteilten Gerät) überschreiben ein bestehendes Konto nie.
+        const localBelongsToThisUser = stats.ownerUid === user.uid;
+
         // Lokalen Stand mit Cloud abgleichen (XP-Gewinn hat Priorität)
-        if (cloudData.xp > stats.xp) {
-          stats = { ...stats, ...cloudData };
+        if (!localBelongsToThisUser || (cloudData.xp || 0) > stats.xp) {
+          const cloudStats = createDefaultStats();
+          SYNCED_STAT_FIELDS.forEach(field => {
+            if (cloudData[field] !== undefined) cloudStats[field] = cloudData[field];
+          });
+          stats = cloudStats;
+          stats.ownerUid = user.uid;
           localStorage.setItem("past_tenses_stats", JSON.stringify(stats));
-          console.log("[Firebase] Lokale Statistiken durch neuere Cloud-Daten aktualisiert.");
-          
-          // XP & Streak im UI updaten
-          if (document.getElementById("tab-progress").classList.contains("active")) {
-            renderProgressTab();
-          }
+          console.log("[Firebase] Lokale Statistiken durch Cloud-Daten ersetzt.");
         } else {
-          // Lokaler Stand ist neuer oder gleich -> Cloud aktualisieren
+          // Lokaler Stand dieses Kontos ist neuer oder gleich -> Cloud aktualisieren
           await saveStats();
         }
       } else {
-        // Noch kein User-Dokument -> Anlegen mit aktuellen lokalen Stats
+        // Noch kein User-Dokument -> Anlegen, aber nur mit anonymen oder eigenen lokalen Stats
+        if (stats.ownerUid && stats.ownerUid !== user.uid) {
+          stats = createDefaultStats();
+        }
+        stats.ownerUid = user.uid;
         await saveStats();
+      }
+
+      // XP & Streak im UI updaten
+      if (document.getElementById("tab-progress").classList.contains("active")) {
+        renderProgressTab();
       }
     } catch (err) {
       console.error("[Firebase] Fehler beim Synchronisieren der Userdaten:", err);
@@ -2451,12 +2652,21 @@ document.addEventListener("DOMContentLoaded", () => {
     await fetchLeaderboard();
   }
 
+  // Benutzername sicher (als Text) ins Status-Badge schreiben
+  function setStatusBadgeUsername(statusBadge, username) {
+    statusBadge.innerHTML = `<i class="fa-solid fa-cloud"></i> <span class="status-text"></span>`;
+    statusBadge.querySelector(".status-text").textContent = String(username);
+    statusBadge.title = `Angemeldet als ${username}`;
+  }
+
   function onUserLoggedOut() {
+    currentUsername = null;
+
     // UI Statusbadge zurücksetzen
     const statusBadge = document.getElementById("cloud-status-badge");
     if (statusBadge) {
       statusBadge.className = "cloud-status-badge offline";
-      statusBadge.innerHTML = `<i class="fa-solid fa-cloud-slash"></i> <span class="status-text">Lokal</span>`;
+      statusBadge.innerHTML = `<i class="fa-solid fa-hard-drive"></i> <span class="status-text">Lokal</span>`;
       statusBadge.title = "Offline-Modus (Lokal)";
     }
 
@@ -2464,8 +2674,15 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("firebase-logged-in-box").classList.add("hidden");
     document.getElementById("firebase-logged-out-box").classList.remove("hidden");
 
-    // Lade lokale Statistiken neu
-    loadStats();
+    // Gehören die lokalen Daten einem Konto, werden sie beim Abmelden verworfen,
+    // damit die nächste Person am selben Gerät sie nicht erbt (geteilte Schul-Geräte).
+    // Anonyme Daten (nie angemeldet) bleiben erhalten.
+    if (stats.ownerUid) {
+      localStorage.removeItem("past_tenses_stats");
+      stats = createDefaultStats();
+    } else {
+      loadStats();
+    }
     
     // XP & Streak im UI updaten
     if (document.getElementById("tab-progress").classList.contains("active")) {
@@ -2475,6 +2692,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function setupOfflineUI() {
     firebaseActive = false;
+
+    // Badge zurücksetzen (sonst dreht "Verbinde..." endlos, wenn Firebase nicht geladen werden konnte)
+    const statusBadge = document.getElementById("cloud-status-badge");
+    if (statusBadge) {
+      statusBadge.className = "cloud-status-badge offline";
+      statusBadge.innerHTML = `<i class="fa-solid fa-hard-drive"></i> <span class="status-text">Lokal</span>`;
+      statusBadge.title = "Offline-Modus (Lokal)";
+    }
     document.getElementById("firebase-unconfigured-note").classList.remove("hidden");
     document.getElementById("firebase-logged-out-box").classList.add("hidden");
     document.getElementById("firebase-logged-in-box").classList.add("hidden");
@@ -2522,12 +2747,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const rankDisplay = medal ? `<span class="rank-medal">${medal}</span>` : `${rank}`;
 
+        // Benutzername stammt aus Firestore (fremde Daten) -> nur als Text einsetzen, nie als HTML
         row.innerHTML = `
           <span class="rank-col">${rankDisplay}</span>
-          <span class="user-col">${username}</span>
-          <span class="streak-col"><i class="fa-solid fa-fire"></i> ${streak}</span>
-          <span class="xp-col">${formatXP(xp)} XP</span>
+          <span class="user-col"></span>
+          <span class="streak-col"><i class="fa-solid fa-fire"></i> ${Number(streak) || 0}</span>
+          <span class="xp-col">${formatXP(Number(xp) || 0)} XP</span>
         `;
+        row.querySelector(".user-col").textContent = String(username);
         listElement.appendChild(row);
         rank++;
       });

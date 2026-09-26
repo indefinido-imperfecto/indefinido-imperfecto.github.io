@@ -8,9 +8,11 @@ Die App ist als rein statische Webseite konzipiert und kann ohne Server oder Dat
 
 ## Features
 
-1. **Drei Übungsmodi:**
+1. **Fünf Übungsmodi:**
    - **Formen bilden:** Aktives Einüben der Konjugation (z. B. *hablar + yo + Indefinido* = *hablé*).
    - **Formen erkennen:** Bestimmen der Zeitform für eine vorgegebene konjugierte Form.
+   - **Zeitform wählen:** Im Lückentext per Klick zwischen der Indefinido- und der Imperfecto-Form entscheiden.
+   - **Signalwörter zuordnen:** Zeitliche Marker (z. B. *ayer*, *siempre*) der passenden Zeitform zuordnen.
    - **Kontextübungen (Lückentext):** Üben der richtigen Anwendung anhand von Signalwörtern (z. B. *ayer*, *mientras*, *de repente*) und Kontextregeln, inklusive didaktischer Erklärungen bei Fehlern.
 2. **Umfangreiches Verblexikon:**
    - Über 150 Verben geladen (regelmäßige Verben, Rechtschreibbesonderheiten auf *-car, -gar, -zar* sowie zahlreiche unregelmäßige Verben).
@@ -53,4 +55,5 @@ Die UI passt sich dynamisch an. Wenn Sie eine neue Zeit in die `app.js` unter `c
    - `style.css`
    - `app.js`
    - `verbs-data.js`
+   - `firebase-config.js` (optional: Cloud-Sync & Rangliste, siehe Kommentar in der Datei; Sicherheitsregeln in `firestore.rules`)
 2. Klicke doppelt auf die `index.html`, um die App direkt im Webbrowser zu starten. Alternativ kannst du den Ordner auf einem Webspace oder GitHub Pages hochladen, um ihn deinen Schülern per Link zur Verfügung zu stellen.
